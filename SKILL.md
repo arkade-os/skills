@@ -286,7 +286,6 @@ npm install @arkade-os/sdk @scure/base
 import {
   RestArkProvider,
   RestIndexerProvider,
-  SingleKey,
   VtxoScript,
   MultisigTapscript,
   CSVMultisigTapscript,
