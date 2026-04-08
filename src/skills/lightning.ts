@@ -30,7 +30,7 @@ const BOLTZ_API_URLS: Record<string, string> = {
 
 export interface ArkadeLightningSkillConfig {
   wallet: Wallet;
-  network: NetworkName;
+  network?: NetworkName;
   arkProvider?: ArkProvider;
   indexerProvider?: IndexerProvider;
   boltzApiUrl?: string;
@@ -50,16 +50,16 @@ export class ArkaLightningSkill implements LightningSkill {
   private readonly swapErrors = new Map<string, string>();
 
   constructor(config: ArkadeLightningSkillConfig) {
-    this.network = config.network;
+    this.network = config.network ?? "bitcoin";
 
     const boltzApiUrl =
       config.boltzApiUrl ||
-      BOLTZ_API_URLS[config.network] ||
+      BOLTZ_API_URLS[this.network] ||
       BOLTZ_API_URLS.bitcoin;
 
     this.swapProvider = new BoltzSwapProvider({
       apiUrl: boltzApiUrl,
-      network: config.network,
+      network: this.network,
       referralId: config.referralId,
     });
 
@@ -215,7 +215,7 @@ export class ArkaLightningSkill implements LightningSkill {
 
 export function createLightningSkill(
   wallet: Wallet,
-  network: NetworkName,
+  network: NetworkName = "bitcoin",
   options?: Partial<Omit<ArkadeLightningSkillConfig, "wallet" | "network">>,
 ): ArkaLightningSkill {
   return new ArkaLightningSkill({
