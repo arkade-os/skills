@@ -11,8 +11,8 @@ read_when:
   - user asks about Arkade smart contracts
   - user wants to send or receive Bitcoin programmatically with Arkade
   - user asks about onboarding or offboarding Bitcoin
-  - user mentions arkade.computer or Ark protocol SDK
-  - user mentions Ark protocol
+  - user mentions arkade.computer or Arkade SDK
+  - user mentions Arkade protocol
 requires: []
 metadata:
   emoji: "₿"
@@ -123,7 +123,7 @@ import { Ramps } from "@arkade-os/sdk";
 
 const ramps = new Ramps(wallet);
 
-// Get fee info from the Ark server
+// Get fee info from the Arkade server
 const info = await wallet.arkProvider.getInfo();
 
 // Onboard: convert boarding UTXOs to VTXOs
