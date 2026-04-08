@@ -45,7 +45,9 @@ pnpm add @arkade-os/skill
 ## Quick Start
 
 ```typescript
-import { Wallet, SingleKey } from "@arkade-os/sdk";
+import { generateMnemonic } from "@scure/bip39";
+import { wordlist } from "@scure/bip39/wordlists/english";
+import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
 import {
   ArkadeBitcoinSkill,
   ArkadeLightningSkill,
@@ -53,8 +55,11 @@ import {
 } from "@arkade-os/skill";
 
 // Create wallet
+const mnemonic = generateMnemonic(wordlist);
+const identity = MnemonicIdentity.fromMnemonic(mnemonic);
+
 const wallet = await Wallet.create({
-  identity: SingleKey.fromHex(privateKeyHex),
+  identity,
   arkServerUrl: "https://arkade.computer",
 });
 
