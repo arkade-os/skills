@@ -33,7 +33,7 @@ import type {
  * Bitcoin over the Arkade protocol.
  *
  * This skill wraps the core wallet functionality and provides:
- * - Offchain Bitcoin transactions via Ark
+ * - Offchain Bitcoin transactions via Arkade
  * - Get paid onchain via boarding address + onboard
  * - Pay onchain via offboard to any Bitcoin address
  * - Balance management
@@ -173,8 +173,8 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    * Send Bitcoin to an address.
    *
    * For Arkade addresses, this creates an offchain transaction that is
-   * instantly confirmed. The recipient must also be using an Ark-compatible
-   * wallet connected to the same Ark server.
+   * instantly confirmed. The recipient must also be using an Arkade wallet
+   * connected to the same Arkade server.
    *
    * @param params - Send parameters including address and amount
    * @returns Result containing the transaction ID and details
@@ -287,7 +287,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    *
    * Use this after receiving onchain Bitcoin to your boarding address.
    * This converts boarding UTXOs into VTXOs through a cooperative
-   * settlement with the Ark server. After onboarding, funds are
+   * settlement with the Arkade server. After onboarding, funds are
    * available for instant offchain transactions.
    *
    * Flow: Someone pays you onchain → funds arrive at boarding address → onboard → funds available offchain
