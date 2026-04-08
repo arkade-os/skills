@@ -33,7 +33,7 @@
  *
  * // Get addresses for receiving
  * const arkAddress = await bitcoin.getArkAddress();
- * console.log("Ark address:", arkAddress);
+ * console.log("Arkade address:", arkAddress);
  *
  * // Check balance
  * const balance = await bitcoin.getBalance();
