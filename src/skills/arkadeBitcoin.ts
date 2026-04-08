@@ -186,10 +186,9 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    * @throws Error if the address is invalid or insufficient balance
    */
   async send(params: SendParams): Promise<SendResult> {
-    const txid = await this.wallet.sendBitcoin({
+    const txid = await this.wallet.send({
       address: params.address,
       amount: params.amount,
-      feeRate: params.feeRate,
       memo: params.memo,
     });
 
