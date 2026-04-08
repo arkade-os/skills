@@ -60,7 +60,7 @@ import type {
  *
  * // Get addresses for receiving
  * const addresses = await bitcoinSkill.getReceiveAddresses();
- * console.log("Ark Address:", addresses[0].address);
+ * console.log("Arkade Address:", addresses[0].address);
  *
  * // Check balance
  * const balance = await bitcoinSkill.getBalance();
@@ -95,7 +95,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
   /**
    * Get all available addresses for receiving Bitcoin.
    *
-   * Returns both the Ark address (for offchain receipts) and the
+   * Returns both the Arkade address (for offchain receipts) and the
    * boarding address (for onchain deposits that can be onboarded).
    *
    * @returns Array of addresses with their types and descriptions
@@ -110,7 +110,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
       {
         address: arkAddress,
         type: "ark",
-        description: "Ark address for receiving offchain Bitcoin instantly",
+        description: "Arkade address for receiving offchain Bitcoin instantly",
       },
       {
         address: boardingAddress,
@@ -122,12 +122,12 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
   }
 
   /**
-   * Get the Ark address for receiving offchain Bitcoin.
+   * Get the Arkade address for receiving offchain Bitcoin.
    *
    * This is the primary address for receiving Bitcoin via Arkade.
    * Funds sent to this address are immediately available offchain.
    *
-   * @returns The bech32m-encoded Ark address
+   * @returns The bech32m-encoded Arkade address
    */
   async getArkAddress(): Promise<string> {
     return this.wallet.getAddress();
