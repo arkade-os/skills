@@ -172,7 +172,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
   /**
    * Send Bitcoin to an address.
    *
-   * For Ark addresses, this creates an offchain transaction that is
+   * For Arkade addresses, this creates an offchain transaction that is
    * instantly confirmed. The recipient must also be using an Ark-compatible
    * wallet connected to the same Ark server.
    *
