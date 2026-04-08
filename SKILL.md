@@ -221,7 +221,7 @@ const quote = await lendaswap.getQuoteBtcToStablecoin(100000, "usdc_pol");
 
 ### ArkadeBitcoinSkill
 
-- `getArkAddress()` / `getBoardingAddress()` — get addresses
+- `getArkadeAddress()` / `getBoardingAddress()` — get addresses
 - `getBalance()` — balance breakdown (offchain + onchain)
 - `send({ address, amount })` — send sats offchain
 - `getTransactionHistory()` — transaction list
