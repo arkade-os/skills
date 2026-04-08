@@ -1,5 +1,5 @@
 import {
-  ArkadeLightning,
+  ArkadeSwaps,
   BoltzSwapProvider,
   decodeInvoice,
   type PendingReverseSwap,
@@ -44,7 +44,7 @@ export class ArkaLightningSkill implements LightningSkill {
     "Lightning Network payments via Boltz submarine swaps for Arkade wallets";
   readonly version = "1.0.0";
 
-  private readonly arkadeLightning: ArkadeLightning;
+  private readonly arkadeLightning: ArkadeSwaps;
   private readonly swapProvider: BoltzSwapProvider;
   private readonly network: NetworkName;
   private readonly swapErrors = new Map<string, string>();
@@ -63,9 +63,9 @@ export class ArkaLightningSkill implements LightningSkill {
       referralId: config.referralId,
     });
 
-    this.arkadeLightning = new ArkadeLightning({
+    this.arkadeLightning = new ArkadeSwaps({
       wallet: config.wallet as ConstructorParameters<
-        typeof ArkadeLightning
+        typeof ArkadeSwaps
       >[0]["wallet"],
       swapProvider: this.swapProvider,
       arkProvider: config.arkProvider,
@@ -160,7 +160,7 @@ export class ArkaLightningSkill implements LightningSkill {
     return this.arkadeLightning.waitAndClaim(pendingSwap);
   }
 
-  getArkadeLightning(): ArkadeLightning {
+  getArkadeLightning(): ArkadeSwaps {
     return this.arkadeLightning;
   }
 
