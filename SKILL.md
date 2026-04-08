@@ -191,7 +191,7 @@ npm install @arkade-os/skill
 import { Wallet, SingleKey } from "@arkade-os/sdk";
 import {
   ArkadeBitcoinSkill,
-  ArkaLightningSkill,
+  ArkadeLightningSkill,
   LendaSwapSkill,
 } from "@arkade-os/skill";
 
@@ -206,7 +206,7 @@ const balance = await bitcoin.getBalance();
 await bitcoin.send({ address: "ark1...", amount: 50000 });
 
 // Lightning: invoices, payments via Boltz
-const lightning = new ArkaLightningSkill({ wallet, network: "bitcoin" });
+const lightning = new ArkadeLightningSkill({ wallet });
 const inv = await lightning.createInvoice({ amount: 25000 });
 
 // Stablecoin swaps: BTC <-> USDC/USDT
@@ -223,7 +223,7 @@ const quote = await lendaswap.getQuoteBtcToStablecoin(100000, "usdc_pol");
 - `onboard(params)` / `offboard(params)` — onchain ramps
 - `waitForIncomingFunds(timeout?)` — wait for incoming payment
 
-### ArkaLightningSkill
+### ArkadeLightningSkill
 
 - `createInvoice({ amount, description? })` — Lightning invoice (reverse swap)
 - `payInvoice({ bolt11 })` — pay Lightning invoice (submarine swap)
