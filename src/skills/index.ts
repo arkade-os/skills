@@ -40,10 +40,7 @@
  * console.log("Balance:", balance.total, "sats");
  *
  * // === Lightning Skill ===
- * const lightning = new ArkadeLightningSkill({
- *   wallet,
- *   network: "bitcoin",
- * });
+ * const lightning = new ArkadeLightningSkill({ wallet });
  *
  * // Create invoice to receive Lightning payment
  * const invoice = await lightning.createInvoice({
