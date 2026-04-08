@@ -189,7 +189,6 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
     const txid = await this.wallet.send({
       address: params.address,
       amount: params.amount,
-      memo: params.memo,
     });
 
     return {
