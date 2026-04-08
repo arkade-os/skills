@@ -109,7 +109,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
     return [
       {
         address: arkAddress,
-        type: "ark",
+        type: "arkade",
         description: "Arkade address for receiving offchain Bitcoin instantly",
       },
       {
@@ -129,6 +129,11 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    *
    * @returns The bech32m-encoded Arkade address
    */
+  async getArkadeAddress(): Promise<string> {
+    return this.wallet.getAddress();
+  }
+
+  /** @deprecated Use getArkadeAddress() instead. */
   async getArkAddress(): Promise<string> {
     return this.wallet.getAddress();
   }
