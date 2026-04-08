@@ -34,7 +34,7 @@ export interface OffboardParams {
 
 export interface SendResult {
   txid: string;
-  type: "ark" | "onchain" | "lightning";
+  type: "arkade" | "onchain" | "lightning";
   amount: number;
   fee?: number;
 }

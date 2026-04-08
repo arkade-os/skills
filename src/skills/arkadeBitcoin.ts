@@ -195,7 +195,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
 
     return {
       txid,
-      type: "ark",
+      type: "arkade",
       amount: params.amount,
     };
   }
