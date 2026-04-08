@@ -13,15 +13,20 @@
  * ## Quick Start
  *
  * ```typescript
- * import { Wallet, SingleKey } from "@arkade-os/sdk";
+ * import { generateMnemonic } from "@scure/bip39";
+ * import { wordlist } from "@scure/bip39/wordlists/english";
+ * import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
  * import {
  *   ArkadeBitcoinSkill,
  *   ArkadeLightningSkill,
  *   LendaSwapSkill,
  * } from "@arkade-os/skill";
  *
+ * const mnemonic = generateMnemonic(wordlist);
+ * const identity = MnemonicIdentity.fromMnemonic(mnemonic);
+ *
  * const wallet = await Wallet.create({
- *   identity: SingleKey.fromHex(privateKeyHex),
+ *   identity,
  *   arkServerUrl: "https://arkade.computer",
  * });
  *
