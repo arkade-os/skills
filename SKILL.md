@@ -146,14 +146,14 @@ npm install @arkade-os/boltz-swap
 Lightning integration uses Boltz submarine swaps to bridge between Arkade and the Lightning Network.
 
 ```typescript
-import { ArkadeLightning, BoltzSwapProvider } from "@arkade-os/boltz-swap";
+import { ArkadeSwaps, BoltzSwapProvider } from "@arkade-os/boltz-swap";
 
 const swapProvider = new BoltzSwapProvider({
   apiUrl: "https://api.ark.boltz.exchange",
   network: "bitcoin",
 });
 
-const lightning = new ArkadeLightning({
+const lightning = new ArkadeSwaps({
   wallet,
   swapProvider,
 });
