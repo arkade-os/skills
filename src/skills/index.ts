@@ -5,7 +5,7 @@
  * and applications. This module provides skills for:
  *
  * - **ArkadeBitcoinSkill**: Send and receive Bitcoin over Arkade
- * - **ArkaLightningSkill**: Lightning Network payments via Boltz swaps
+ * - **ArkadeLightningSkill**: Lightning Network payments via Boltz swaps
  * - **LendaSwapSkill**: USDC/USDT stablecoin swaps via LendaSwap
  *
  * @example
@@ -13,7 +13,7 @@
  * import { Wallet, SingleKey } from "@arkade-os/sdk";
  * import {
  *   ArkadeBitcoinSkill,
- *   ArkaLightningSkill,
+ *   ArkadeLightningSkill,
  *   LendaSwapSkill,
  * } from "@arkade-os/skill";
  *
@@ -35,7 +35,7 @@
  * console.log("Balance:", balance.total, "sats");
  *
  * // === Lightning Skill ===
- * const lightning = new ArkaLightningSkill({
+ * const lightning = new ArkadeLightningSkill({
  *   wallet,
  *   network: "bitcoin",
  * });
@@ -102,6 +102,7 @@ export { ArkadeBitcoinSkill, createArkadeBitcoinSkill } from "./arkadeBitcoin";
 
 // Lightning skill
 export {
+  ArkadeLightningSkill,
   ArkaLightningSkill,
   createLightningSkill,
   type ArkadeLightningSkillConfig,
