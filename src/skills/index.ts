@@ -32,7 +32,7 @@
  * const bitcoin = new ArkadeBitcoinSkill(wallet);
  *
  * // Get addresses for receiving
- * const arkAddress = await bitcoin.getArkAddress();
+ * const arkAddress = await bitcoin.getArkadeAddress();
  * console.log("Arkade address:", arkAddress);
  *
  * // Check balance
