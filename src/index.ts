@@ -7,7 +7,7 @@
  * ## Available Skills
  *
  * - **ArkadeBitcoinSkill**: Send/receive Bitcoin via Arkade with on/off ramp support
- * - **ArkaLightningSkill**: Lightning Network payments via Boltz submarine swaps
+ * - **ArkadeLightningSkill**: Lightning Network payments via Boltz submarine swaps
  * - **LendaSwapSkill**: USDC/USDT stablecoin swaps via LendaSwap
  *
  * ## Quick Start
@@ -16,7 +16,7 @@
  * import { Wallet, SingleKey } from "@arkade-os/sdk";
  * import {
  *   ArkadeBitcoinSkill,
- *   ArkaLightningSkill,
+ *   ArkadeLightningSkill,
  *   LendaSwapSkill,
  * } from "@arkade-os/skill";
  *
@@ -30,7 +30,7 @@
  * const balance = await bitcoin.getBalance();
  *
  * // Lightning operations
- * const lightning = new ArkaLightningSkill({ wallet, network: "bitcoin" });
+ * const lightning = new ArkadeLightningSkill({ wallet });
  * const invoice = await lightning.createInvoice({ amount: 50000 });
  *
  * // Stablecoin swaps
