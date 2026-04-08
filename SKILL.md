@@ -44,7 +44,7 @@ const wallet = await Wallet.create({
 });
 
 const address = await wallet.getAddress();
-console.log("Ark Address:", address);
+console.log("Arkade Address:", address);
 ```
 
 For production, always use a secure key management solution rather than hardcoded keys.
@@ -54,7 +54,7 @@ For production, always use a secure key management solution rather than hardcode
 ### Addresses
 
 ```typescript
-// Offchain Ark address (ark1.../tark1...) — for instant payments
+// Offchain Arkade address (ark1.../tark1...) — for instant payments
 const arkAddress = await wallet.getAddress();
 
 // Boarding address — for receiving onchain BTC to be onboarded later
@@ -78,7 +78,7 @@ console.log("Boarding:", balance.boarding.total, "sats");
 ### Sending Payments
 
 ```typescript
-// Send to an Ark address — instant, near-zero fees
+// Send to an Arkade address — instant, near-zero fees
 const txid = await wallet.sendBitcoin({
   address: "ark1...",
   amount: 50000, // satoshis
@@ -335,7 +335,7 @@ This starts a Bitcoin regtest node with an Arkade operator at `http://localhost:
 - **Preconfirmation**: Instant confirmation cosigned by the operator, before onchain settlement.
 - **Virtual Mempool**: DAG-based offchain execution engine that processes Arkade transactions.
 - **Unilateral Exit**: Users can always withdraw their funds onchain without operator cooperation.
-- **Ark Addresses**: `ark1...` (mainnet) / `tark1...` (testnet) — bech32m-encoded addresses containing server + user keys.
+- **Arkade Addresses**: `ark1...` (mainnet) / `tark1...` (testnet) — bech32m-encoded addresses containing server + user keys.
 
 ## Documentation
 
