@@ -8,7 +8,7 @@ export interface Skill {
 
 export interface BitcoinAddress {
   address: string;
-  type: "ark" | "boarding" | "onchain";
+  type: "arkade" | "boarding" | "onchain";
   description: string;
 }
 
@@ -34,7 +34,7 @@ export interface OffboardParams {
 
 export interface SendResult {
   txid: string;
-  type: "ark" | "onchain" | "lightning";
+  type: "arkade" | "onchain" | "lightning";
   amount: number;
   fee?: number;
 }
@@ -67,6 +67,8 @@ export interface IncomingFundsEvent {
 
 export interface BitcoinSkill extends Skill {
   getReceiveAddresses(): Promise<BitcoinAddress[]>;
+  getArkadeAddress(): Promise<string>;
+  /** @deprecated Use getArkadeAddress() instead. */
   getArkAddress(): Promise<string>;
   getBoardingAddress(): Promise<string>;
   getBalance(): Promise<BalanceInfo>;

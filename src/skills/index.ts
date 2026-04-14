@@ -5,21 +5,26 @@
  * and applications. This module provides skills for:
  *
  * - **ArkadeBitcoinSkill**: Send and receive Bitcoin over Arkade
- * - **ArkaLightningSkill**: Lightning Network payments via Boltz swaps
+ * - **ArkadeLightningSkill**: Lightning Network payments via Boltz swaps
  * - **LendaSwapSkill**: USDC/USDT stablecoin swaps via LendaSwap
  *
  * @example
  * ```typescript
- * import { Wallet, SingleKey } from "@arkade-os/sdk";
+ * import { generateMnemonic } from "@scure/bip39";
+ * import { wordlist } from "@scure/bip39/wordlists/english";
+ * import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
  * import {
  *   ArkadeBitcoinSkill,
- *   ArkaLightningSkill,
+ *   ArkadeLightningSkill,
  *   LendaSwapSkill,
  * } from "@arkade-os/skill";
  *
+ * const mnemonic = generateMnemonic(wordlist);
+ * const identity = MnemonicIdentity.fromMnemonic(mnemonic);
+ *
  * // Create a wallet
  * const wallet = await Wallet.create({
- *   identity: SingleKey.fromHex(privateKeyHex),
+ *   identity,
  *   arkServerUrl: "https://arkade.computer",
  * });
  *
@@ -27,18 +32,15 @@
  * const bitcoin = new ArkadeBitcoinSkill(wallet);
  *
  * // Get addresses for receiving
- * const arkAddress = await bitcoin.getArkAddress();
- * console.log("Ark address:", arkAddress);
+ * const arkAddress = await bitcoin.getArkadeAddress();
+ * console.log("Arkade address:", arkAddress);
  *
  * // Check balance
  * const balance = await bitcoin.getBalance();
  * console.log("Balance:", balance.total, "sats");
  *
  * // === Lightning Skill ===
- * const lightning = new ArkaLightningSkill({
- *   wallet,
- *   network: "bitcoin",
- * });
+ * const lightning = new ArkadeLightningSkill({ wallet });
  *
  * // Create invoice to receive Lightning payment
  * const invoice = await lightning.createInvoice({
@@ -102,6 +104,7 @@ export { ArkadeBitcoinSkill, createArkadeBitcoinSkill } from "./arkadeBitcoin";
 
 // Lightning skill
 export {
+  ArkadeLightningSkill,
   ArkaLightningSkill,
   createLightningSkill,
   type ArkadeLightningSkillConfig,

@@ -11,8 +11,8 @@ read_when:
   - user asks about Arkade smart contracts
   - user wants to send or receive Bitcoin programmatically with Arkade
   - user asks about onboarding or offboarding Bitcoin
-  - user mentions arkade.computer or Ark protocol SDK
-  - user mentions Ark protocol
+  - user mentions arkade.computer or Arkade SDK
+  - user mentions Arkade protocol
 requires: []
 metadata:
   emoji: "₿"
@@ -31,12 +31,12 @@ npm install @arkade-os/sdk
 Requires Node.js >= 22.
 
 ```typescript
-import { SingleKey, Wallet } from "@arkade-os/sdk";
+import { generateMnemonic } from "@scure/bip39";
+import { wordlist } from "@scure/bip39/wordlists/english";
+import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
 
-// Create an identity (private key)
-const identity = SingleKey.fromHex("your-private-key-hex");
-// Or generate a new one:
-// const identity = SingleKey.fromRandomBytes();
+const mnemonic = generateMnemonic(wordlist);
+const identity = MnemonicIdentity.fromMnemonic(mnemonic);
 
 const wallet = await Wallet.create({
   identity,
@@ -44,7 +44,7 @@ const wallet = await Wallet.create({
 });
 
 const address = await wallet.getAddress();
-console.log("Ark Address:", address);
+console.log("Arkade Address:", address);
 ```
 
 For production, always use a secure key management solution rather than hardcoded keys.
@@ -54,7 +54,7 @@ For production, always use a secure key management solution rather than hardcode
 ### Addresses
 
 ```typescript
-// Offchain Ark address (ark1.../tark1...) — for instant payments
+// Offchain Arkade address (ark1.../tark1...) — for instant payments
 const arkAddress = await wallet.getAddress();
 
 // Boarding address — for receiving onchain BTC to be onboarded later
@@ -78,7 +78,7 @@ console.log("Boarding:", balance.boarding.total, "sats");
 ### Sending Payments
 
 ```typescript
-// Send to an Ark address — instant, near-zero fees
+// Send to an Arkade address — instant, near-zero fees
 const txid = await wallet.sendBitcoin({
   address: "ark1...",
   amount: 50000, // satoshis
@@ -123,7 +123,7 @@ import { Ramps } from "@arkade-os/sdk";
 
 const ramps = new Ramps(wallet);
 
-// Get fee info from the Ark server
+// Get fee info from the Arkade server
 const info = await wallet.arkProvider.getInfo();
 
 // Onboard: convert boarding UTXOs to VTXOs
@@ -146,14 +146,14 @@ npm install @arkade-os/boltz-swap
 Lightning integration uses Boltz submarine swaps to bridge between Arkade and the Lightning Network.
 
 ```typescript
-import { ArkadeLightning, BoltzSwapProvider } from "@arkade-os/boltz-swap";
+import { ArkadeSwaps, BoltzSwapProvider } from "@arkade-os/boltz-swap";
 
 const swapProvider = new BoltzSwapProvider({
   apiUrl: "https://api.ark.boltz.exchange",
   network: "bitcoin",
 });
 
-const lightning = new ArkadeLightning({
+const lightning = new ArkadeSwaps({
   wallet,
   swapProvider,
 });
@@ -188,15 +188,20 @@ npm install @arkade-os/skill
 ```
 
 ```typescript
-import { Wallet, SingleKey } from "@arkade-os/sdk";
+import { generateMnemonic } from "@scure/bip39";
+import { wordlist } from "@scure/bip39/wordlists/english";
+import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
 import {
   ArkadeBitcoinSkill,
-  ArkaLightningSkill,
+  ArkadeLightningSkill,
   LendaSwapSkill,
 } from "@arkade-os/skill";
 
+const mnemonic = generateMnemonic(wordlist);
+const identity = MnemonicIdentity.fromMnemonic(mnemonic);
+
 const wallet = await Wallet.create({
-  identity: SingleKey.fromHex(privateKeyHex),
+  identity,
   arkServerUrl: "https://arkade.computer",
 });
 
@@ -206,7 +211,7 @@ const balance = await bitcoin.getBalance();
 await bitcoin.send({ address: "ark1...", amount: 50000 });
 
 // Lightning: invoices, payments via Boltz
-const lightning = new ArkaLightningSkill({ wallet, network: "bitcoin" });
+const lightning = new ArkadeLightningSkill({ wallet });
 const inv = await lightning.createInvoice({ amount: 25000 });
 
 // Stablecoin swaps: BTC <-> USDC/USDT
@@ -216,14 +221,14 @@ const quote = await lendaswap.getQuoteBtcToStablecoin(100000, "usdc_pol");
 
 ### ArkadeBitcoinSkill
 
-- `getArkAddress()` / `getBoardingAddress()` — get addresses
+- `getArkadeAddress()` / `getBoardingAddress()` — get addresses
 - `getBalance()` — balance breakdown (offchain + onchain)
 - `send({ address, amount })` — send sats offchain
 - `getTransactionHistory()` — transaction list
 - `onboard(params)` / `offboard(params)` — onchain ramps
 - `waitForIncomingFunds(timeout?)` — wait for incoming payment
 
-### ArkaLightningSkill
+### ArkadeLightningSkill
 
 - `createInvoice({ amount, description? })` — Lightning invoice (reverse swap)
 - `payInvoice({ bolt11 })` — pay Lightning invoice (submarine swap)
@@ -281,7 +286,6 @@ npm install @arkade-os/sdk @scure/base
 import {
   RestArkProvider,
   RestIndexerProvider,
-  SingleKey,
   VtxoScript,
   MultisigTapscript,
   CSVMultisigTapscript,
@@ -330,7 +334,7 @@ This starts a Bitcoin regtest node with an Arkade operator at `http://localhost:
 - **Preconfirmation**: Instant confirmation cosigned by the operator, before onchain settlement.
 - **Virtual Mempool**: DAG-based offchain execution engine that processes Arkade transactions.
 - **Unilateral Exit**: Users can always withdraw their funds onchain without operator cooperation.
-- **Ark Addresses**: `ark1...` (mainnet) / `tark1...` (testnet) — bech32m-encoded addresses containing server + user keys.
+- **Arkade Addresses**: `ark1...` (mainnet) / `tark1...` (testnet) — bech32m-encoded addresses containing server + user keys.
 
 ## Documentation
 

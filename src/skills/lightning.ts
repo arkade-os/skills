@@ -1,5 +1,5 @@
 import {
-  ArkadeLightning,
+  ArkadeSwaps,
   BoltzSwapProvider,
   decodeInvoice,
   type PendingReverseSwap,
@@ -30,7 +30,7 @@ const BOLTZ_API_URLS: Record<string, string> = {
 
 export interface ArkadeLightningSkillConfig {
   wallet: Wallet;
-  network: NetworkName;
+  network?: NetworkName;
   arkProvider?: ArkProvider;
   indexerProvider?: IndexerProvider;
   boltzApiUrl?: string;
@@ -38,34 +38,34 @@ export interface ArkadeLightningSkillConfig {
   enableSwapManager?: boolean;
 }
 
-export class ArkaLightningSkill implements LightningSkill {
+export class ArkadeLightningSkill implements LightningSkill {
   readonly name = "arkade-lightning";
   readonly description =
     "Lightning Network payments via Boltz submarine swaps for Arkade wallets";
   readonly version = "1.0.0";
 
-  private readonly arkadeLightning: ArkadeLightning;
+  private readonly arkadeLightning: ArkadeSwaps;
   private readonly swapProvider: BoltzSwapProvider;
   private readonly network: NetworkName;
   private readonly swapErrors = new Map<string, string>();
 
   constructor(config: ArkadeLightningSkillConfig) {
-    this.network = config.network;
+    this.network = config.network ?? "bitcoin";
 
     const boltzApiUrl =
       config.boltzApiUrl ||
-      BOLTZ_API_URLS[config.network] ||
+      BOLTZ_API_URLS[this.network] ||
       BOLTZ_API_URLS.bitcoin;
 
     this.swapProvider = new BoltzSwapProvider({
       apiUrl: boltzApiUrl,
-      network: config.network,
+      network: this.network,
       referralId: config.referralId,
     });
 
-    this.arkadeLightning = new ArkadeLightning({
+    this.arkadeLightning = new ArkadeSwaps({
       wallet: config.wallet as ConstructorParameters<
-        typeof ArkadeLightning
+        typeof ArkadeSwaps
       >[0]["wallet"],
       swapProvider: this.swapProvider,
       arkProvider: config.arkProvider,
@@ -160,7 +160,7 @@ export class ArkaLightningSkill implements LightningSkill {
     return this.arkadeLightning.waitAndClaim(pendingSwap);
   }
 
-  getArkadeLightning(): ArkadeLightning {
+  getArkadeLightning(): ArkadeSwaps {
     return this.arkadeLightning;
   }
 
@@ -215,12 +215,15 @@ export class ArkaLightningSkill implements LightningSkill {
 
 export function createLightningSkill(
   wallet: Wallet,
-  network: NetworkName,
+  network: NetworkName = "bitcoin",
   options?: Partial<Omit<ArkadeLightningSkillConfig, "wallet" | "network">>,
-): ArkaLightningSkill {
-  return new ArkaLightningSkill({
+): ArkadeLightningSkill {
+  return new ArkadeLightningSkill({
     wallet,
     network,
     ...options,
   });
 }
+
+/** @deprecated Use ArkadeLightningSkill instead. */
+export const ArkaLightningSkill = ArkadeLightningSkill;

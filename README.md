@@ -45,16 +45,21 @@ pnpm add @arkade-os/skill
 ## Quick Start
 
 ```typescript
-import { Wallet, SingleKey } from "@arkade-os/sdk";
+import { generateMnemonic } from "@scure/bip39";
+import { wordlist } from "@scure/bip39/wordlists/english";
+import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
 import {
   ArkadeBitcoinSkill,
-  ArkaLightningSkill,
+  ArkadeLightningSkill,
   LendaSwapSkill,
 } from "@arkade-os/skill";
 
 // Create wallet
+const mnemonic = generateMnemonic(wordlist);
+const identity = MnemonicIdentity.fromMnemonic(mnemonic);
+
 const wallet = await Wallet.create({
-  identity: SingleKey.fromHex(privateKeyHex),
+  identity,
   arkServerUrl: "https://arkade.computer",
 });
 
@@ -64,7 +69,7 @@ const balance = await bitcoin.getBalance();
 await bitcoin.send({ address: "ark1...", amount: 50000 });
 
 // Lightning operations
-const lightning = new ArkaLightningSkill({ wallet, network: "bitcoin" });
+const lightning = new ArkadeLightningSkill({ wallet });
 const invoice = await lightning.createInvoice({ amount: 25000 });
 
 // Stablecoin swaps
@@ -77,7 +82,7 @@ const quote = await lendaswap.getQuoteBtcToStablecoin(100000, "usdc_pol");
 | Skill | Description |
 |-------|-------------|
 | `ArkadeBitcoinSkill` | Send/receive BTC via Arkade offchain, onboard/offboard ramps |
-| `ArkaLightningSkill` | Lightning payments via Boltz swaps |
+| `ArkadeLightningSkill` | Lightning payments via Boltz swaps |
 | `LendaSwapSkill` | USDC/USDT swaps via LendaSwap |
 
 ## Documentation

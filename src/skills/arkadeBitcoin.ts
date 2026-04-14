@@ -33,7 +33,7 @@ import type {
  * Bitcoin over the Arkade protocol.
  *
  * This skill wraps the core wallet functionality and provides:
- * - Offchain Bitcoin transactions via Ark
+ * - Offchain Bitcoin transactions via Arkade
  * - Get paid onchain via boarding address + onboard
  * - Pay onchain via offboard to any Bitcoin address
  * - Balance management
@@ -41,12 +41,17 @@ import type {
  *
  * @example
  * ```typescript
- * import { Wallet, SingleKey } from "@arkade-os/sdk";
+ * import { generateMnemonic } from "@scure/bip39";
+ * import { wordlist } from "@scure/bip39/wordlists/english";
+ * import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
  * import { ArkadeBitcoinSkill } from "@arkade-os/skill";
+ *
+ * const mnemonic = generateMnemonic(wordlist);
+ * const identity = MnemonicIdentity.fromMnemonic(mnemonic);
  *
  * // Create a wallet
  * const wallet = await Wallet.create({
- *   identity: SingleKey.fromHex(privateKeyHex),
+ *   identity,
  *   arkServerUrl: "https://arkade.computer",
  * });
  *
@@ -55,7 +60,7 @@ import type {
  *
  * // Get addresses for receiving
  * const addresses = await bitcoinSkill.getReceiveAddresses();
- * console.log("Ark Address:", addresses[0].address);
+ * console.log("Arkade Address:", addresses[0].address);
  *
  * // Check balance
  * const balance = await bitcoinSkill.getBalance();
@@ -90,7 +95,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
   /**
    * Get all available addresses for receiving Bitcoin.
    *
-   * Returns both the Ark address (for offchain receipts) and the
+   * Returns both the Arkade address (for offchain receipts) and the
    * boarding address (for onchain deposits that can be onboarded).
    *
    * @returns Array of addresses with their types and descriptions
@@ -104,8 +109,8 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
     return [
       {
         address: arkAddress,
-        type: "ark",
-        description: "Ark address for receiving offchain Bitcoin instantly",
+        type: "arkade",
+        description: "Arkade address for receiving offchain Bitcoin instantly",
       },
       {
         address: boardingAddress,
@@ -117,13 +122,18 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
   }
 
   /**
-   * Get the Ark address for receiving offchain Bitcoin.
+   * Get the Arkade address for receiving offchain Bitcoin.
    *
    * This is the primary address for receiving Bitcoin via Arkade.
    * Funds sent to this address are immediately available offchain.
    *
-   * @returns The bech32m-encoded Ark address
+   * @returns The bech32m-encoded Arkade address
    */
+  async getArkadeAddress(): Promise<string> {
+    return this.wallet.getAddress();
+  }
+
+  /** @deprecated Use getArkadeAddress() instead. */
   async getArkAddress(): Promise<string> {
     return this.wallet.getAddress();
   }
@@ -167,25 +177,23 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
   /**
    * Send Bitcoin to an address.
    *
-   * For Ark addresses, this creates an offchain transaction that is
-   * instantly confirmed. The recipient must also be using an Ark-compatible
-   * wallet connected to the same Ark server.
+   * For Arkade addresses, this creates an offchain transaction that is
+   * instantly confirmed. The recipient must also be using an Arkade wallet
+   * connected to the same Arkade server.
    *
    * @param params - Send parameters including address and amount
    * @returns Result containing the transaction ID and details
    * @throws Error if the address is invalid or insufficient balance
    */
   async send(params: SendParams): Promise<SendResult> {
-    const txid = await this.wallet.sendBitcoin({
+    const txid = await this.wallet.send({
       address: params.address,
       amount: params.amount,
-      feeRate: params.feeRate,
-      memo: params.memo,
     });
 
     return {
       txid,
-      type: "ark",
+      type: "arkade",
       amount: params.amount,
     };
   }
@@ -282,7 +290,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    *
    * Use this after receiving onchain Bitcoin to your boarding address.
    * This converts boarding UTXOs into VTXOs through a cooperative
-   * settlement with the Ark server. After onboarding, funds are
+   * settlement with the Arkade server. After onboarding, funds are
    * available for instant offchain transactions.
    *
    * Flow: Someone pays you onchain → funds arrive at boarding address → onboard → funds available offchain
