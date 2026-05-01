@@ -25,7 +25,7 @@ Arkade is a programmable Bitcoin execution layer. It uses VTXOs (Virtual Transac
 ## SDK Installation & Setup
 
 ```bash
-npm install @arkade-os/sdk
+pnpm add @arkade-os/sdk
 ```
 
 Requires Node.js >= 22.
@@ -140,7 +140,7 @@ const exitTxid = await ramps.offboard(
 ## Lightning Network
 
 ```bash
-npm install @arkade-os/boltz-swap
+pnpm add @arkade-os/boltz-swap
 ```
 
 Lightning integration uses Boltz submarine swaps to bridge between Arkade and the Lightning Network.
@@ -184,7 +184,7 @@ console.log("Preimage:", result.preimage);
 This package (`@arkade-os/skill`) provides higher-level wrapper classes over the SDK:
 
 ```bash
-npm install @arkade-os/skill
+pnpm add @arkade-os/skill
 ```
 
 ```typescript
@@ -279,7 +279,7 @@ const claim = await lendaswap.claimSwap(swap.swapId);
 Arkade supports any valid Tapscript as VTXO locking conditions, enabling programmable offchain Bitcoin.
 
 ```bash
-npm install @arkade-os/sdk @scure/base
+pnpm add @arkade-os/sdk @scure/base
 ```
 
 ```typescript

@@ -19,7 +19,7 @@ Arkade SDK skill for AI agents — develop with the `@arkade-os/sdk` TypeScript 
 Install directly into your coding agent using the [Vercel Skills CLI](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add arkade-os/skill
+pnpm dlx skills add arkade-os/skill
 ```
 
 This discovers the `arkade` skill and installs it into supported agents (Claude Code, Cursor, etc.).
@@ -28,18 +28,18 @@ You can also target a specific agent or install globally:
 
 ```bash
 # Install to a specific agent
-npx skills add arkade-os/skill --agent claude-code
+pnpm dlx skills add arkade-os/skill --agent claude-code
 
 # Install globally (user-level)
-npx skills add arkade-os/skill -g
+pnpm dlx skills add arkade-os/skill -g
 ```
 
 ### As an npm Package
 
 ```bash
-npm install @arkade-os/skill
-# or
 pnpm add @arkade-os/skill
+# or
+npm install @arkade-os/skill
 ```
 
 ## Quick Start
