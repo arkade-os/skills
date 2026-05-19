@@ -288,6 +288,7 @@ import {
   RestIndexerProvider,
   VtxoScript,
   MultisigTapscript,
+  CLTVMultisigTapscript,
   CSVMultisigTapscript,
 } from "@arkade-os/sdk";
 import { hex } from "@scure/base";
