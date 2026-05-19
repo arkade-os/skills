@@ -340,7 +340,7 @@ This starts a Bitcoin regtest node with an Arkade operator at `http://localhost:
 
 - Full docs: https://docs.arkadeos.com
 - Technical primer: https://docs.arkadeos.com/primer
-- Wallet SDK v0.3: https://docs.arkadeos.com/wallets/v0.3/setup
+- Wallet SDK: https://docs.arkadeos.com/wallets/getting-started/introduction
 - Smart contracts: https://docs.arkadeos.com/contracts/overview
 - Lightning swaps: https://docs.arkadeos.com/contracts/lightning-swaps
 - LLM-friendly index: https://docs.arkadeos.com/llms.txt
