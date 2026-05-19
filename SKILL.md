@@ -177,6 +177,7 @@ console.log("Preimage:", result.preimage);
 |---------|-----|
 | Bitcoin mainnet | `https://api.ark.boltz.exchange` |
 | Mutinynet | `https://api.boltz.mutinynet.arkade.sh` |
+| Signet | `https://api.boltz.signet.arkade.sh` |
 | Regtest (local) | `http://localhost:9069` |
 
 ## Skill Classes (this package)
