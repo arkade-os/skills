@@ -302,8 +302,10 @@ const serverPubkey = hex.decode(info.signerPubkey).slice(1);
 
 **Available contract primitives:**
 - **MultisigTapscript** — N-of-N multisig
-- **CLTVMultisigTapscript** — Multisig with absolute timelocks
-- **CSVMultisigTapscript** — Multisig with relative timelocks
+- **CLTVMultisigTapscript** — Multisig with absolute timelocks (collaborative paths)
+- **CSVMultisigTapscript** — Multisig with relative timelocks (unilateral paths)
+- **ConditionMultisigTapscript** — Condition + multisig (e.g., hashlock + collaborative)
+- **ConditionCSVMultisigTapscript** — Condition + CSV multisig (e.g., hashlock + unilateral)
 - **VtxoScript** — Combine spending paths into Taproot trees
 
 **Contract patterns in docs:** HTLC/Hashlock, Escrow (3-path), Spilman channels, Dryja-Poon channels, Lightning channels, chain swaps, Oracle DLC.
