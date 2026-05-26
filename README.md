@@ -10,7 +10,7 @@ Arkade SDK skill for AI agents — develop with the `@arkade-os/sdk` TypeScript 
 - **Stablecoin Swaps**: Trade BTC for USDC/USDT on Polygon, Ethereum, Arbitrum
 - **SDK Development Guide**: SKILL.md teaches AI agents how to build with Arkade
 
-**Default Server:** https://arkade.computer
+**Default Arkade operator:** https://arkade.computer
 
 ## Installation
 
