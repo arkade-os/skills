@@ -307,8 +307,8 @@ import {
 } from "@arkade-os/sdk";
 import { hex } from "@scure/base";
 
-const arkProvider = new RestArkProvider("https://mutinynet.arkade.sh");
-const indexerProvider = new RestIndexerProvider("https://mutinynet.arkade.sh");
+const arkProvider = new RestArkProvider("https://arkade.computer");
+const indexerProvider = new RestIndexerProvider("https://arkade.computer");
 const info = await arkProvider.getInfo();
 const operatorPubkey = hex.decode(info.signerPubkey).slice(1);
 ```
