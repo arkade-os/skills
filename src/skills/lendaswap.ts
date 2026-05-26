@@ -17,6 +17,7 @@ import {
   type SwapStatus as LendaSwapStatus,
   type TokenInfo,
   type Chain,
+  type StoredSwap,
   BTC_ARKADE_INFO,
 } from "@lendasat/lendaswap-sdk-pure";
 import type {
@@ -129,6 +130,10 @@ function tokenInfoToString(token: TokenInfo): string {
   return `${token.symbol.toLowerCase()}_${chain}`;
 }
 
+function amountToNumber(amount: string | number): number {
+  return typeof amount === "number" ? amount : Number(amount);
+}
+
 /**
  * Configuration for the LendaSwapSkill.
  */
@@ -210,7 +215,7 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
       builder.withBaseUrl(this.config.apiUrl);
     }
     if (this.config.apiKey) {
-      builder.withApiKey(this.config.apiKey);
+      builder.withDefaultHeaders({ "x-api-key": this.config.apiKey });
     }
     if (this.config.esploraUrl) {
       builder.withEsploraUrl(this.config.esploraUrl);
@@ -375,30 +380,30 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
     });
 
     const resp = result.response;
+    const sourceAmount = amountToNumber(resp.source_amount);
+    const targetAmount = amountToNumber(resp.target_amount);
 
     // Auto-fund the VHTLC by sending BTC from the Arkade wallet
     const fundingTxid = await this.wallet.sendBitcoin({
       address: resp.btc_vhtlc_address,
-      amount: resp.source_amount,
+      amount: sourceAmount,
     });
 
     const exchangeRate =
-      resp.source_amount > 0 && resp.target_amount > 0
-        ? resp.target_amount / (resp.source_amount / 1e8)
+      sourceAmount > 0 && targetAmount > 0
+        ? targetAmount / (sourceAmount / 1e8)
         : 0;
 
     return {
       swapId: resp.id,
       status: "funded",
-      sourceAmount: resp.source_amount,
-      targetAmount: resp.target_amount,
+      sourceAmount,
+      targetAmount,
       exchangeRate,
       fee: {
         amount: resp.fee_sats,
         percentage:
-          resp.source_amount > 0
-            ? (resp.fee_sats / resp.source_amount) * 100
-            : 0,
+          sourceAmount > 0 ? (resp.fee_sats / sourceAmount) * 100 : 0,
       },
       expiresAt: new Date(resp.vhtlc_refund_locktime * 1000),
       paymentDetails: { address: resp.btc_vhtlc_address },
@@ -429,24 +434,24 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
     });
 
     const resp = result.response;
+    const sourceAmount = amountToNumber(resp.source_amount);
+    const targetAmount = amountToNumber(resp.target_amount);
 
     const exchangeRate =
-      resp.source_amount > 0 && resp.target_amount > 0
-        ? (resp.source_amount / resp.target_amount) * 1e8
+      sourceAmount > 0 && targetAmount > 0
+        ? (sourceAmount / targetAmount) * 1e8
         : 0;
 
     return {
       swapId: resp.id,
       status: mapSwapStatus(resp.status),
-      sourceAmount: resp.source_amount,
-      targetAmount: resp.target_amount,
+      sourceAmount,
+      targetAmount,
       exchangeRate,
       fee: {
         amount: resp.fee_sats,
         percentage:
-          resp.source_amount > 0
-            ? (resp.fee_sats / resp.target_amount) * 100
-            : 0,
+          sourceAmount > 0 ? (resp.fee_sats / targetAmount) * 100 : 0,
       },
       expiresAt: new Date(resp.evm_refund_locktime * 1000),
       paymentDetails: {
@@ -467,12 +472,14 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
         : ("btc_to_stablecoin" as const);
 
     const status = mapSwapStatus(data.status);
+    const sourceAmount = amountToNumber(data.source_amount);
+    const targetAmount = amountToNumber(data.target_amount);
 
     const exchangeRate =
-      data.source_amount > 0 && data.target_amount > 0
+      sourceAmount > 0 && targetAmount > 0
         ? direction === "btc_to_stablecoin"
-          ? data.target_amount / (data.source_amount / 1e8)
-          : (data.source_amount / data.target_amount) * 1e8
+          ? targetAmount / (sourceAmount / 1e8)
+          : (sourceAmount / targetAmount) * 1e8
         : 0;
 
     return {
@@ -481,8 +488,8 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
       status,
       sourceToken: tokenInfoToString(data.source_token),
       targetToken: tokenInfoToString(data.target_token),
-      sourceAmount: data.source_amount,
-      targetAmount: data.target_amount,
+      sourceAmount,
+      targetAmount,
       exchangeRate,
       createdAt: new Date(data.created_at),
       completedAt: status === "completed" ? new Date() : undefined,
@@ -610,7 +617,12 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
     _tokenDecimals: number,
   ): Promise<EvmFundingCallData> {
     const client = await this.getClient();
-    const data = await client.getCoordinatorFundingCallData(swapId);
+    const swap = await client.getSwap(swapId, { updateStorage: true });
+    const chainId = Number(swap.source_token.chain);
+    const data = await client.getCoordinatorFundingCallDataPermit2(
+      swapId,
+      chainId,
+    );
     return {
       approve: { to: data.approve.to, data: data.approve.data },
       createSwap: {
@@ -666,18 +678,7 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
   /**
    * Convert a StoredSwap to StablecoinSwapInfo.
    */
-  private storedSwapToInfo(stored: {
-    swapId: string;
-    response: {
-      status: LendaSwapStatus;
-      source_token: TokenInfo;
-      target_token: TokenInfo;
-      source_amount: number;
-      target_amount: number;
-      created_at: string;
-      direction: string;
-    };
-  }): StablecoinSwapInfo {
+  private storedSwapToInfo(stored: StoredSwap): StablecoinSwapInfo {
     const resp = stored.response;
     const direction =
       resp.direction === "evm_to_arkade" || resp.direction === "evm_to_bitcoin"
@@ -685,11 +686,13 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
         : ("btc_to_stablecoin" as const);
 
     const status = mapSwapStatus(resp.status);
+    const sourceAmount = amountToNumber(resp.source_amount);
+    const targetAmount = amountToNumber(resp.target_amount);
     const exchangeRate =
-      resp.source_amount > 0 && resp.target_amount > 0
+      sourceAmount > 0 && targetAmount > 0
         ? direction === "btc_to_stablecoin"
-          ? resp.target_amount / (resp.source_amount / 1e8)
-          : (resp.source_amount / resp.target_amount) * 1e8
+          ? targetAmount / (sourceAmount / 1e8)
+          : (sourceAmount / targetAmount) * 1e8
         : 0;
 
     return {
@@ -698,8 +701,8 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
       status,
       sourceToken: tokenInfoToString(resp.source_token),
       targetToken: tokenInfoToString(resp.target_token),
-      sourceAmount: resp.source_amount,
-      targetAmount: resp.target_amount,
+      sourceAmount,
+      targetAmount,
       exchangeRate,
       createdAt: new Date(resp.created_at),
       completedAt: status === "completed" ? new Date() : undefined,

@@ -185,7 +185,7 @@ export class ArkadeLightningSkill implements LightningSkill {
       id: swap.id,
       type: "reverse",
       status: swap.status as SwapStatus,
-      amount: swap.response.onchainAmount,
+      amount: swap.response.onchainAmount ?? 0,
       createdAt: new Date(swap.createdAt),
       invoice: swap.response.invoice,
       error: this.swapErrors.get(swap.id),
