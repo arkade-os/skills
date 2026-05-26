@@ -1,6 +1,6 @@
 {
     "name": "@arkade-os/skill",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "description": "Agent skills for building apps with Arkade, an open execution engine for Bitcoin.",
     "type": "module",
     "main": "./dist/cjs/index.js",
