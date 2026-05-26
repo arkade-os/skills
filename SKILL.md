@@ -22,6 +22,17 @@ metadata:
 
 Arkade is a programmable Bitcoin execution layer. It uses VTXOs (Virtual Transaction Outputs) to enable instant offchain Bitcoin transactions with near-zero fees, while users retain full self-custody and unilateral exit rights. No changes to Bitcoin are required.
 
+## Terminology Notice
+
+Use current Arkade terminology in all docs, comments, and user-facing text:
+
+- Use **Arkade operator** or **the operator**, not deprecated terms such as "Ark service provider", "ASP", or "Ark server".
+- Use **batch swap**, not "round".
+- Use **commitment transaction** or **batch swap commitment transaction**, not "round transaction".
+- Use **Arkade address**, not "Ark address".
+- Use **Arkade transaction**, not "Ark transaction", "out of round transaction", or "arkoor".
+- Use **delegate** for the entity that renews VTXOs; use "delegating" only when describing the user action.
+
 ## SDK Installation & Setup
 
 ```bash
@@ -44,7 +55,7 @@ const wallet = await Wallet.create({
 });
 
 const address = await wallet.getAddress();
-console.log("Arkade Address:", address);
+console.log("Arkade address:", address);
 ```
 
 For production, always use a secure key management solution rather than hardcoded keys.
@@ -123,7 +134,7 @@ import { Ramps } from "@arkade-os/sdk";
 
 const ramps = new Ramps(wallet);
 
-// Get fee info from the Arkade server
+// Get fee info from the Arkade operator
 const info = await wallet.arkProvider.getInfo();
 
 // Onboard: convert boarding UTXOs to VTXOs
@@ -297,7 +308,7 @@ import { hex } from "@scure/base";
 const arkProvider = new RestArkProvider("https://mutinynet.arkade.sh");
 const indexerProvider = new RestIndexerProvider("https://mutinynet.arkade.sh");
 const info = await arkProvider.getInfo();
-const serverPubkey = hex.decode(info.signerPubkey).slice(1);
+const operatorPubkey = hex.decode(info.signerPubkey).slice(1);
 ```
 
 **Available contract primitives:**
@@ -316,7 +327,7 @@ See: https://docs.arkadeos.com/contracts/overview
 
 ## Networks & Resources
 
-| Network | Server URL | Explorer |
+| Network | Operator URL | Explorer |
 |---------|-----------|----------|
 | Bitcoin mainnet | `https://arkade.computer` | https://arkade.space |
 | Mutinynet (testnet) | `https://mutinynet.arkade.sh` | https://explorer.mutinynet.arkade.sh |
@@ -338,7 +349,7 @@ This starts a Bitcoin regtest node with an Arkade operator at `http://localhost:
 - **Preconfirmation**: Instant confirmation cosigned by the operator, before onchain settlement.
 - **Virtual Mempool**: DAG-based offchain execution engine that processes Arkade transactions.
 - **Unilateral Exit**: Users can always withdraw their funds onchain without operator cooperation.
-- **Arkade Addresses**: `ark1...` (mainnet) / `tark1...` (testnet) — bech32m-encoded addresses containing server + user keys.
+- **Arkade Addresses**: `ark1...` (mainnet) / `tark1...` (testnet) — bech32m-encoded addresses containing operator + user keys.
 
 ## Documentation
 

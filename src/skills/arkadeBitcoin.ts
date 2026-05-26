@@ -179,7 +179,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    *
    * For Arkade addresses, this creates an offchain transaction that is
    * instantly confirmed. The recipient must also be using an Arkade wallet
-   * connected to the same Arkade server.
+   * connected to the same Arkade operator.
    *
    * @param params - Send parameters including address and amount
    * @returns Result containing the transaction ID and details
@@ -290,7 +290,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    *
    * Use this after receiving onchain Bitcoin to your boarding address.
    * This converts boarding UTXOs into VTXOs through a cooperative
-   * settlement with the Arkade server. After onboarding, funds are
+   * settlement with the Arkade operator. After onboarding, funds are
    * available for instant offchain transactions.
    *
    * Flow: Someone pays you onchain → funds arrive at boarding address → onboard → funds available offchain

@@ -146,7 +146,7 @@ export interface LendaSwapSkillConfig {
   apiUrl?: string;
   /** Optional Esplora URL for Bitcoin queries */
   esploraUrl?: string;
-  /** Optional Arkade server URL */
+  /** Optional Arkade operator URL */
   arkadeServerUrl?: string;
   /** Optional mnemonic for LendaSwap HD wallet (for persistence across sessions) */
   mnemonic?: string;
