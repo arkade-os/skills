@@ -16,7 +16,8 @@
     },
     "files": [
         "dist",
-        "SKILL.md"
+        "SKILL.md",
+        "arkade-advanced-tapscript.md"
     ],
     "publishConfig": {
         "access": "public",
