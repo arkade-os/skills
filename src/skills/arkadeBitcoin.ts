@@ -181,15 +181,13 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    * @throws Error if the address is invalid or insufficient balance
    */
   async send(params: SendParams): Promise<SendResult> {
-    const txid = await this.wallet.send({
-      address: params.address,
-      amount: params.amount,
-    });
+    const txid = await this.wallet.send(params);
 
     return {
       txid,
       type: "arkade",
       amount: params.amount,
+      assets: params.assets,
     };
   }
 
@@ -302,7 +300,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    * // Step 2: After receiving payment, onboard the funds
    * const arkInfo = await arkProvider.getInfo();
    * const result = await bitcoinSkill.onboard({
-   *   feeInfo: arkInfo.feeInfo,
+   *   feeInfo: arkInfo.fees,
    *   eventCallback: (event) => console.log("Settlement event:", event.type),
    * });
    * console.log("Onboarded! Commitment:", result.commitmentTxid);
@@ -317,7 +315,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
 
     const commitmentTxid = await this.ramps.onboard(
       params.feeInfo,
-      undefined,
+      params.boardingUtxos,
       params.amount,
       params.eventCallback,
     );
@@ -349,7 +347,7 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
    * const arkInfo = await arkProvider.getInfo();
    * const result = await bitcoinSkill.offboard({
    *   destinationAddress: "bc1q...", // recipient's onchain address
-   *   feeInfo: arkInfo.feeInfo,
+   *   feeInfo: arkInfo.fees,
    *   eventCallback: (event) => console.log("Settlement event:", event.type),
    * });
    * console.log("Paid onchain! Commitment:", result.commitmentTxid);
