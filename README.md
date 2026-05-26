@@ -89,7 +89,7 @@ const quote = await lendaswap.getQuoteBtcToStablecoin(100000, "usdc_pol");
 
 - [SKILL.md](./SKILL.md) — SDK development guide for AI agents
 - [Arkade Docs](https://docs.arkadeos.com) — full documentation
-- [Wallet SDK v0.3](https://docs.arkadeos.com/wallets/v0.3/setup) — SDK reference
+- [Wallet SDK](https://docs.arkadeos.com/wallets/getting-started/create-your-wallet) — SDK reference
 - [Smart Contracts](https://docs.arkadeos.com/contracts/overview) — contract development
 
 ## License
