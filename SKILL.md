@@ -13,6 +13,9 @@ read_when:
   - user asks about onboarding or offboarding Bitcoin
   - user mentions arkade.computer or Arkade SDK
   - user mentions Arkade protocol
+  - user wants to build custom VTXO contracts with multiple spending paths
+  - user asks about CLTV vs CSV or when to use absolute vs relative timelocks
+  - user mentions ConditionMultisigTapscript or hashlock tapscripts
 requires: []
 metadata:
   emoji: "₿"
