@@ -1,4 +1,10 @@
-import type { ArkTransaction, SettlementEvent, FeeInfo } from "@arkade-os/sdk";
+import type {
+  ArkTransaction,
+  ExtendedCoin,
+  FeeInfo,
+  Recipient,
+  SettlementEvent,
+} from "@arkade-os/sdk";
 
 export interface Skill {
   readonly name: string;
@@ -12,15 +18,11 @@ export interface BitcoinAddress {
   description: string;
 }
 
-export interface SendParams {
-  address: string;
-  amount: number;
-  feeRate?: number;
-  memo?: string;
-}
+export type SendParams = Recipient;
 
 export interface OnboardParams {
   feeInfo: FeeInfo;
+  boardingUtxos?: ExtendedCoin[];
   amount?: bigint;
   eventCallback?: (event: SettlementEvent) => void;
 }
@@ -35,7 +37,8 @@ export interface OffboardParams {
 export interface SendResult {
   txid: string;
   type: "arkade" | "onchain" | "lightning";
-  amount: number;
+  amount?: number;
+  assets?: Recipient["assets"];
   fee?: number;
 }
 
@@ -68,8 +71,6 @@ export interface IncomingFundsEvent {
 export interface BitcoinSkill extends Skill {
   getReceiveAddresses(): Promise<BitcoinAddress[]>;
   getArkadeAddress(): Promise<string>;
-  /** @deprecated Use getArkadeAddress() instead. */
-  getArkAddress(): Promise<string>;
   getBoardingAddress(): Promise<string>;
   getBalance(): Promise<BalanceInfo>;
   send(params: SendParams): Promise<SendResult>;
