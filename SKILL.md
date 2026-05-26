@@ -186,7 +186,7 @@ console.log("Preimage:", result.preimage);
 
 | Network | URL |
 |---------|-----|
-| Bitcoin mainnet | `https://api.ark.boltz.exchange` |
+| Bitcoin mainnet | `https://api.boltz.exchange` |
 | Mutinynet | `https://api.boltz.mutinynet.arkade.sh` |
 | Signet | `https://api.boltz.signet.arkade.sh` |
 | Regtest (local) | `http://localhost:9069` |
@@ -302,6 +302,8 @@ import {
   MultisigTapscript,
   CLTVMultisigTapscript,
   CSVMultisigTapscript,
+  ConditionMultisigTapscript,
+  ConditionCSVMultisigTapscript,
 } from "@arkade-os/sdk";
 import { hex } from "@scure/base";
 
