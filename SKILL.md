@@ -90,7 +90,7 @@ console.log("Boarding:", balance.boarding.total, "sats");
 
 ```typescript
 // Send to an Arkade address — instant, near-zero fees
-const txid = await wallet.sendBitcoin({
+const txid = await wallet.send({
   address: "ark1...",
   amount: 50000, // satoshis
 });

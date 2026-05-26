@@ -384,7 +384,7 @@ export class LendaSwapSkill implements StablecoinSwapSkill {
     const targetAmount = amountToNumber(resp.target_amount);
 
     // Auto-fund the VHTLC by sending BTC from the Arkade wallet
-    const fundingTxid = await this.wallet.sendBitcoin({
+    const fundingTxid = await this.wallet.send({
       address: resp.btc_vhtlc_address,
       amount: sourceAmount,
     });
