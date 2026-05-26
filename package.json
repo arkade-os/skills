@@ -34,9 +34,9 @@
         "prepublishOnly": "pnpm run build"
     },
     "dependencies": {
-        "@arkade-os/boltz-swap": "^0.3.13",
-        "@arkade-os/sdk": "^0.4.14",
-        "@lendasat/lendaswap-sdk-pure": "^0.2.1"
+        "@arkade-os/boltz-swap": "^0.3.33",
+        "@arkade-os/sdk": "^0.4.28",
+        "@lendasat/lendaswap-sdk-pure": "^0.2.35"
     },
     "devDependencies": {
         "@types/node": "^24.0.0",
