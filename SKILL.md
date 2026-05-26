@@ -44,14 +44,14 @@ Requires Node.js >= 22.
 ```typescript
 import { generateMnemonic } from "@scure/bip39";
 import { wordlist } from "@scure/bip39/wordlists/english";
-import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
+import { MnemonicIdentity, RestArkProvider, Wallet } from "@arkade-os/sdk";
 
 const mnemonic = generateMnemonic(wordlist);
 const identity = MnemonicIdentity.fromMnemonic(mnemonic);
 
 const wallet = await Wallet.create({
   identity,
-  arkServerUrl: "https://arkade.computer",
+  arkProvider: new RestArkProvider("https://arkade.computer"),
 });
 
 const address = await wallet.getAddress();
@@ -202,7 +202,7 @@ pnpm add @arkade-os/skill
 ```typescript
 import { generateMnemonic } from "@scure/bip39";
 import { wordlist } from "@scure/bip39/wordlists/english";
-import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
+import { MnemonicIdentity, RestArkProvider, Wallet } from "@arkade-os/sdk";
 import {
   ArkadeBitcoinSkill,
   ArkadeLightningSkill,
@@ -214,7 +214,7 @@ const identity = MnemonicIdentity.fromMnemonic(mnemonic);
 
 const wallet = await Wallet.create({
   identity,
-  arkServerUrl: "https://arkade.computer",
+  arkProvider: new RestArkProvider("https://arkade.computer"),
 });
 
 // Bitcoin: addresses, balances, send/receive, onboard/offboard
