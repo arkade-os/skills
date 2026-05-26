@@ -133,11 +133,6 @@ export class ArkadeBitcoinSkill implements BitcoinSkill, RampSkill {
     return this.wallet.getAddress();
   }
 
-  /** @deprecated Use getArkadeAddress() instead. */
-  async getArkAddress(): Promise<string> {
-    return this.wallet.getAddress();
-  }
-
   /**
    * Get the boarding address for receiving onchain Bitcoin.
    *
