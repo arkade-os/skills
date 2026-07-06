@@ -20,8 +20,8 @@ import type {
 } from "./types";
 
 const BOLTZ_API_URLS: Record<string, string> = {
-  bitcoin: "https://api.ark.boltz.exchange",
-  mainnet: "https://api.ark.boltz.exchange",
+  bitcoin: "https://api.boltz.exchange",
+  mainnet: "https://api.boltz.exchange",
   testnet: "https://testnet.boltz.exchange/api",
   signet: "https://testnet.boltz.exchange/api",
   regtest: "http://localhost:9069",
