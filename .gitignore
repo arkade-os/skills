@@ -25,6 +25,9 @@ Thumbs.db
 *.log
 npm-debug.log*
 
+# npm pack output
+*.tgz
+
 # Local wallet data (never commit private keys)
 .arkade-wallet
 
