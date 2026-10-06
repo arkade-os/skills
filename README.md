@@ -1,97 +1,15 @@
-# @arkade-os/skill
+# Arkade skills
 
-Arkade SDK skill for AI agents — develop with the `@arkade-os/sdk` TypeScript SDK for Bitcoin wallets, Lightning, smart contracts, and stablecoin swaps.
-
-## Features
-
-- **Bitcoin on Arkade**: Instant offchain Bitcoin transactions via VTXOs
-- **Onchain Ramps**: Onboard (onchain to offchain) and offboard (offchain to onchain)
-- **Lightning Network**: Pay and receive via Boltz submarine swaps
-- **Stablecoin Swaps**: Trade BTC for USDC/USDT on Polygon, Ethereum, Arbitrum
-- **SDK Development Guide**: SKILL.md teaches AI agents how to build with Arkade
-
-**Default Server:** https://arkade.computer
-
-## Installation
-
-### As an Agent Skill
-
-Install directly into your coding agent using the [Vercel Skills CLI](https://github.com/vercel-labs/skills):
+Three skills for a fresh project. They clone what they need. They do not assume the working tree is the SDK or the regtest stack. Installing them does not add the compiler, the SDK, or regtest.
 
 ```bash
-pnpm dlx skills add arkade-os/skill
+pnpm dlx skills add arkade-os/skills
 ```
 
-This discovers the `arkade` skill and installs it into supported agents (Claude Code, Cursor, etc.).
+| Skill | What it does |
+| --- | --- |
+| `arkade-contract` | Clones `arkade-os/ts-sdk` into `vendor/ts-sdk` and depends on `@arkade-os/sdk`. Loads any artifact with `programFromArtifact` and spends the functions that artifact declares. `ContractManager` is the only writer of contract and VTXO rows. |
+| `arkade-product-ui` | Reads [emilkowalski/skills](https://github.com/emilkowalski/skills) and [Impeccable](https://github.com/pbakaus/impeccable). A screen offers the constructor, the funding step, and the spend functions the artifact has. |
+| `arkade-regtest` | Clones [ArkLabsHQ/arkade-regtest](https://github.com/ArkLabsHQ/arkade-regtest) and starts it with `node regtest/regtest.mjs start --profile ark --profile emulator`. One functional end-to-end test against that stack. Helpers go at the end of the file. |
 
-You can also target a specific agent or install globally:
-
-```bash
-# Install to a specific agent
-pnpm dlx skills add arkade-os/skill --agent claude-code
-
-# Install globally (user-level)
-pnpm dlx skills add arkade-os/skill -g
-```
-
-### As an npm Package
-
-```bash
-pnpm add @arkade-os/skill
-# or
-npm install @arkade-os/skill
-```
-
-## Quick Start
-
-```typescript
-import { generateMnemonic } from "@scure/bip39";
-import { wordlist } from "@scure/bip39/wordlists/english";
-import { MnemonicIdentity, Wallet } from "@arkade-os/sdk";
-import {
-  ArkadeBitcoinSkill,
-  ArkadeLightningSkill,
-  LendaSwapSkill,
-} from "@arkade-os/skill";
-
-// Create wallet
-const mnemonic = generateMnemonic(wordlist);
-const identity = MnemonicIdentity.fromMnemonic(mnemonic);
-
-const wallet = await Wallet.create({
-  identity,
-  arkServerUrl: "https://arkade.computer",
-});
-
-// Bitcoin operations
-const bitcoin = new ArkadeBitcoinSkill(wallet);
-const balance = await bitcoin.getBalance();
-await bitcoin.send({ address: "ark1...", amount: 50000 });
-
-// Lightning operations
-const lightning = new ArkadeLightningSkill({ wallet });
-const invoice = await lightning.createInvoice({ amount: 25000 });
-
-// Stablecoin swaps
-const lendaswap = new LendaSwapSkill({ wallet });
-const quote = await lendaswap.getQuoteBtcToStablecoin(100000, "usdc_pol");
-```
-
-## Available Skills
-
-| Skill | Description |
-|-------|-------------|
-| `ArkadeBitcoinSkill` | Send/receive BTC via Arkade offchain, onboard/offboard ramps |
-| `ArkadeLightningSkill` | Lightning payments via Boltz swaps |
-| `LendaSwapSkill` | USDC/USDT swaps via LendaSwap |
-
-## Documentation
-
-- [SKILL.md](./SKILL.md) — SDK development guide for AI agents
-- [Arkade Docs](https://docs.arkadeos.com) — full documentation
-- [Wallet SDK v0.3](https://docs.arkadeos.com/wallets/v0.3/setup) — SDK reference
-- [Smart Contracts](https://docs.arkadeos.com/contracts/overview) — contract development
-
-## License
-
-MIT
+`arkadec` comes from a clone of [arkade-os/compiler](https://github.com/arkade-os/compiler). Commit artifacts and `.ark` files. Ignore `vendor/` and `regtest/`.

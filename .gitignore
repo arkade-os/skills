@@ -25,5 +25,6 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Local wallet data (never commit private keys)
-.arkade-wallet
+# Checkouts a skill clones into a project. Do not commit them.
+vendor/
+regtest/
