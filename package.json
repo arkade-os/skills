@@ -1,6 +1,6 @@
 {
     "name": "@arkade-os/skills",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Agent skills for compiling, spending, and proving any Arkade contract.",
     "license": "MIT",
     "author": "Ark Labs",
