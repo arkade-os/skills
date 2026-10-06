@@ -1,10 +1,13 @@
 # Arkade skills
 
-Install these skills into a fresh project, then follow them in order. They are already published.
+Install `@arkade-os/skills` into a fresh project, then follow the skills in order.
 
 ```bash
-npx skills add arkade-os/skills -y
+pnpm add -D @arkade-os/skills
+npx skills experimental_sync -y
 ```
+
+`npx skills add arkade-os/skills -y` installs the same three skills from GitHub. Use the npm package when you want a version pin. The skills are in `skills/`, which is the directory both installers read.
 
 ## What to do
 

@@ -1,0 +1,28 @@
+{
+    "name": "@arkade-os/skills",
+    "version": "0.1.0",
+    "description": "Agent skills for compiling, spending, and proving any Arkade contract.",
+    "license": "MIT",
+    "author": "Ark Labs",
+    "homepage": "https://github.com/arkade-os/skills#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkade-os/skills.git"
+    },
+    "bugs": {
+        "url": "https://github.com/arkade-os/skills/issues"
+    },
+    "keywords": [
+        "agent-skills",
+        "agent-skill",
+        "skills",
+        "arkade",
+        "bitcoin"
+    ],
+    "files": [
+        "skills"
+    ],
+    "publishConfig": {
+        "access": "public"
+    }
+}
