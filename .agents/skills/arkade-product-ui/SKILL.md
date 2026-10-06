@@ -24,7 +24,7 @@ Numbers the user sees are the integers the covenant computes, in the units the c
 
 Say when the page does not broadcast. A hash of the form fields is not a script, an address, or a payment.
 
-Keep the clocks apart. `checkTime` is the emulator clock. `tx.time` is nLockTime. `older` starts when the output is mined, which is after unroll. One control does not represent both. Enable a spend when `getUtxos()` has a coin for it. A lookup still in flight is a loader on that control.
+Keep the clocks apart. `checkTime` is the emulator clock. `tx.time` is nLockTime. `older` starts when the output is mined, which is after unroll. One control does not represent both. Enable a covenant spend when `getUtxos()` returns a spendable coin. For an `older` exit, track the unrolled on-chain output and its maturity separately; show a loader while that state is unknown.
 
 External data fails closed. Show the failure. Do not substitute a price, a balance, or a confirmation the feed did not return.
 

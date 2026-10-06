@@ -42,7 +42,7 @@ const program = programFromArtifact(artifact);
 
 `checkTime` is `OP_CHECKTIME`. The SDK already supports it.
 
-`older(n)` is a CSV. The compiler pushes `n` without the BIP68 seconds bit. Public arkd rejects a block-type exit leaf, so an offchain exit passes `n` as a BIP68 seconds sequence (the value is a multiple of 512). Regtest arkd treats a value below 512 as blocks. Change that integer in the constructor arguments. Leave every other opcode alone.
+`older(n)` is a CSV. The compiler pushes `n` without the BIP68 seconds bit. `programFromArtifact` binds that placeholder as `{ type: "blocks" }`, and `timelockToSequence` encodes the constructor integer as a block count. Multiplying it by 512 does not set the BIP68 seconds bit. Public arkd rejects a block-type exit leaf. For that exit, set the leaf's `csv.type` to `"seconds"` on the program before `client.contract`, and pass the duration in seconds, a multiple of 512. A literal sequence already in the artifact is decoded with `sequenceToTimelock`; leave it. Leave every other opcode alone. Regtest arkd accepts a block count below 512, so a regtest exit can keep `"blocks"` and pass that count.
 
 ## Open a session
 
@@ -107,7 +107,8 @@ If the program declares `server` or `user` and the caller omits them, `contract(
 
 ```ts
 const contract = client.contract(program, args);
-const coin = (await contract.getUtxos())[0];
+const [coin] = await contract.getUtxos();
+if (!coin) throw new Error("No spendable contract coin is available");
 
 await contract.functions
     .spend(/* witnesses, in source order */)

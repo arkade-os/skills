@@ -13,7 +13,8 @@ This skill is used from a fresh project. Pull the stack. It is not already check
 
 ```bash
 git clone --depth 1 https://github.com/ArkLabsHQ/arkade-regtest.git regtest
-node regtest/regtest.mjs start --profile ark --profile emulator
+printf 'AUTOMINE_INTERVAL=0\n' > .env.regtest
+node regtest/regtest.mjs start --env .env.regtest --profile ark --profile emulator
 ```
 
 [arkade-regtest](https://github.com/ArkLabsHQ/arkade-regtest) is Docker images plus a Node CLI: Bitcoin Core, mempool (Esplora under `/api`), arkd, and the emulator. Docker with the compose plugin, and Node 18 or newer. No `npm install` inside `regtest/`. Ignore that directory. `start` initializes the `ark` client and seeds it with offchain funds.
@@ -24,11 +25,11 @@ node regtest/regtest.mjs start --profile ark --profile emulator
 
 Stop with `node regtest/regtest.mjs stop` (volumes stay). Wipe with `node regtest/regtest.mjs clean`. The SDK checkout's `pnpm run regtest:*:ts-sdk` scripts call this same CLI. Use them only when the working tree is that checkout.
 
-Set `AUTOMINE_INTERVAL=0` in a `--env` file for any test that mines. The default auto-miner (one block every 600 seconds) moves block-denominated expiry and sweeps under a running test. Mine with `node regtest/regtest.mjs mine [n]`.
+`AUTOMINE_INTERVAL=0` has to be loaded at `start`, as in the command above. The CLI reads `--env <path>` when you pass it, and otherwise the clone's parent `.env.regtest` or `regtest/.env`. A value already in the environment wins over those files. The default auto-miner (one block every 600 seconds) moves block-denominated expiry and sweeps under a running test. Mine with `node regtest/regtest.mjs mine [n]`.
 
 Defaults that matter: arkd `http://localhost:7070` (admin `7071`), Esplora `http://localhost:3000/api`, emulator `http://localhost:7073`, arkd wallet `http://localhost:6060`. The SDK's regtest Esplora default is that `/api` URL. Bitcoin Core RPC is `localhost:18443`, user `admin1`, password `123`.
 
-arkd's default locktimes in this stack are below 512, so they are blocks. Public arkd rejects that. A test of an exit leaf passes the constructor the sequence the target operator expects.
+arkd's default locktimes in this stack are below 512, so they are blocks. Public arkd rejects that. A test of an exit leaf passes the duration the target operator expects: a block count with `csv.type` `"blocks"` on this stack, or seconds (a multiple of 512) with `csv.type` `"seconds"` for public arkd.
 
 ## Fund
 
