@@ -1,6 +1,8 @@
-# Arkade skills
+# Arkade contract skills
 
-Install these skills into a fresh project with the [skills CLI](https://skills.sh), then follow them in order.
+Skills for an Arkade smart contract: compile it with arkadec, spend it with `@arkade-os/sdk`, build the product UI, and prove it on Arkade regtest.
+
+Install them into a fresh project with the [skills CLI](https://skills.sh), then follow them in order.
 
 ```bash
 npx skills add arkade-os/skills

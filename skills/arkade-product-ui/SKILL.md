@@ -1,9 +1,10 @@
 ---
 name: arkade-product-ui
 description: >
-  Build or polish a UI for any Arkade contract. Use for funding, spending a
-  named function, watching coins, or an exit. Starts from emilkowalski/skills
-  and the Impeccable scaffolding. Do not use for contract authoring or SDK internals.
+  Build the product UI for any Arkade smart contract. Use when funding,
+  spending a named function, watching VTXOs, or showing an Arkade exit.
+  Starts from emilkowalski/skills and Impeccable. Use for an Arkade app
+  screen. Do not use for contract authoring, the SDK, or Arkade regtest.
 ---
 
 # Arkade contract UI
