@@ -1,7 +1,7 @@
 {
     "name": "@arkade-os/skills",
-    "version": "0.1.1",
-    "description": "Agent skills for compiling, spending, and proving any Arkade contract.",
+    "version": "0.1.2",
+    "description": "Agent skills for an Arkade smart contract: compile with arkadec, spend with @arkade-os/sdk, and prove it on Arkade regtest.",
     "license": "MIT",
     "author": "Ark Labs",
     "homepage": "https://github.com/arkade-os/skills#readme",
@@ -17,7 +17,13 @@
         "agent-skill",
         "skills",
         "arkade",
-        "bitcoin"
+        "bitcoin",
+        "smart-contract",
+        "covenant",
+        "vtxo",
+        "regtest",
+        "arkd",
+        "arkadec"
     ],
     "files": [
         "skills"

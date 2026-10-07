@@ -1,10 +1,10 @@
 ---
 name: arkade-regtest
 description: >
-  Bring up ArkLabsHQ/arkade-regtest in one shot and prove any Arkade contract
-  with one functional end-to-end test against that stack. Use for the regtest
-  CLI, faucet, notes, asset issuance, and the emulator. Do not write unit
-  tests. Do not use for contract authoring.
+  Run Arkade regtest and prove any Arkade contract with one end-to-end test.
+  Use for ArkLabsHQ/arkade-regtest, arkd, the Bitcoin faucet, notes, asset
+  issuance, and the emulator. Use when testing an Arkade smart contract on
+  regtest. Do not write unit tests. Do not use for contract authoring.
 ---
 
 # Arkade regtest

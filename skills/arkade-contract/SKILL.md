@@ -1,11 +1,11 @@
 ---
 name: arkade-contract
 description: >
-  Load any arkadec artifact and spend it through @arkade-os/sdk. Use for
-  programFromArtifact, Arkade.connect, client.contract, constructor arguments,
-  covenant outputs, tapleaf spends, ContractManager, repositories, and
-  watching. Extends the escrow skill at ArkLabsHQ/arkade-escrow-covenant
-  .cursor/skills/arkade-contract to any contract.
+  Spend any Arkade smart contract. Load an arkadec artifact with
+  programFromArtifact and spend it through @arkade-os/sdk: constructor
+  arguments, covenant outputs, tapleaf spends, VTXOs, and ContractManager.
+  Use when the user says Arkade contract, Bitcoin covenant, or
+  programFromArtifact. Do not use for the product UI or Arkade regtest.
 ---
 
 # Spend any Arkade contract
