@@ -59,6 +59,9 @@ import {
     networks,
 } from "@arkade-os/sdk";
 
+const arkadeUrl = "https://mutinynet.arkade.sh";
+const emulatorUrl = "https://emulator.mutinynet.arkade.sh";
+
 const arkadeOperator = new RestArkProvider(arkadeUrl);
 const indexer = new RestIndexerProvider(arkadeUrl);
 const emulator = new RestEmulatorProvider(emulatorUrl);
@@ -145,6 +148,6 @@ const stop = manager.onContractEvent((event) => {
 
 Leave `metadata.genericallySpendable` unset unless this contract's coins are safe in a generic wallet send. The arkade handler treats anything but explicit `true` as not generically spendable, and `createContract` is first-writer-wins for that script.
 
-Do not poll Esplora for a virtual transaction id. `GET /api/tx/<virtualTxid>` is 404. Ask Mempool only about a transaction that has been unrolled.
+Do not poll Esplora for a virtual transaction id. `GET /api/tx/<virtualTxid>` is 404. Ask Mempool only about a transaction that has been unrolled. On mutinynet that Esplora API is `https://mempool.mutinynet.arkade.sh/api`. The Arkade explorer is `https://explorer.mutinynet.arkade.sh/`.
 
 `checkTime` reads the emulator clock, in unix seconds. `older(n)` has not started before unroll. Read the operator minimum from `arkadeOperator.getInfo()` (`unilateralExitDelay`).
