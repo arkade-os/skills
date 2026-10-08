@@ -81,6 +81,8 @@ const client = await arkade.Arkade.connect({
 });
 ```
 
+Mutinynet is `https://mutinynet.arkade.sh` for the operator and the indexer, `https://emulator.mutinynet.arkade.sh` for the emulator, `https://mempool.mutinynet.arkade.sh/api` for Esplora, and `https://explorer.mutinynet.arkade.sh/` for the Arkade explorer.
+
 Leave `identity` off when this session only watches or spends leaves that do not need a local signer. `ReadonlyWallet` is the wrong stand-in: it requires a pubkey and then watches that pubkey's scripts. Pass `identity` only when a leaf needs this session to sign.
 
 A `Wallet` already owns a manager and both repositories. Use that manager. Do not construct a second one beside the wallet and write the same scripts through both.
