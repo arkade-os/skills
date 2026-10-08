@@ -10,7 +10,7 @@ npx skills add arkade-os/skills
 
 ## What to do
 
-1. **Compile the contract.** Clone [arkade-os/compiler](https://github.com/arkade-os/compiler) and run `arkadec`. Commit the `.ark` file and the artifact. Leave the compiler checkout untracked.
+1. **Write the contract.** Follow `writing-arkade-contracts`. It clones [arkade-os/compiler](https://github.com/arkade-os/compiler) and runs `arkadec`. Commit the `.ark` file and the artifact. Leave `compiler/` untracked.
 
 2. **Spend it.** Follow `arkade-contract`. It clones `arkade-os/ts-sdk` into `vendor/ts-sdk` and installs `@arkade-os/sdk`. Load the artifact with `programFromArtifact` and spend the functions it declares. `ContractManager` is the only writer of contract and VTXO rows. Leave `vendor/` untracked.
 

@@ -32,5 +32,6 @@ npm-debug.log*
 .arkade-wallet
 
 # Checkouts a skill clones into a project. Do not commit them.
+compiler/
 vendor/
 regtest/

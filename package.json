@@ -1,6 +1,6 @@
 {
     "name": "@arkade-os/skills",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "description": "Agent skills for an Arkade smart contract: compile with arkadec, spend with @arkade-os/sdk, and prove it on Arkade regtest.",
     "license": "MIT",
     "author": "Ark Labs",
