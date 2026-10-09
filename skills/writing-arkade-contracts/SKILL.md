@@ -28,12 +28,15 @@ A leaf that is the receiver's signature names their key on the script they took 
 
 ```ark
 function finalize() {
+  require(tx.numOutputs == 2, "two outputs");
+  require(tx.outputs[0].value >= userAmount, "user");
   require(tx.outputs[0].scriptPubKey == userScript, "user");
-  require(tx.outputs[1].scriptPubKey == optionScript, "option");
+  require(tx.outputs[1].value >= committedAmount, "committed");
+  require(tx.outputs[1].scriptPubKey == committedScript, "committed");
 }
 ```
 
-`userScript` and `optionScript` are constructor `bytes32`s, agreed when the address was funded. A `checkMultisig` of keys fixed in the constructor only says who may sign. It does not say where the value goes. Put the standing offer beside `compiler/examples/escrow/escrow.ark`, and start from `OptionIntent` when the receiver's script is the authorization.
+`userScript`, `committedScript`, `userAmount`, and `committedAmount` are constructor fields, agreed when the address was funded. When the order moves an asset, check `tx.outputs[i].assets.lookup` for that committed amount the same way. A change output is another counted output, with its script checked too. A `checkMultisig` of keys fixed in the constructor only says who may sign. It does not say where the value goes. Put the standing offer beside `compiler/examples/escrow/escrow.ark`, and start from `OptionIntent` when the receiver's script is the authorization.
 
 If the output scripts are arguments of the function, its signer can pay themselves. Pin those scripts in the address that gets funded. That spend approves those outputs, or returns the coins to the funder.
 

@@ -19,7 +19,7 @@ Polish and motion come from [emilkowalski/skills](https://github.com/emilkowalsk
 
 ## Match the artifact
 
-The one next action is one function on `contract.functions`, named as in the `.ark` file, and only when this user can satisfy it. Constructor fields that pin the outputs were collected when the address was funded. The spend sends the witnesses and outputs that function checks, and nothing else.
+The one next action is one product operation. Funding the standing address pays that address. It is not a function on `contract.functions`. A covenant spend is one function on `contract.functions`, named as in the `.ark` file, and only when this user can satisfy it. Constructor fields that pin the outputs were collected when the address was funded. That spend sends the witnesses and outputs that function checks, and nothing else.
 
 Numbers the user sees are the integers the covenant computes, in the units the contract uses. A display format is applied after that result. A preview that rounds in floating point and then spends the rounded value will disagree with the script.
 

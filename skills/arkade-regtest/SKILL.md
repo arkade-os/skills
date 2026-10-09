@@ -64,9 +64,9 @@ A control asset is an issuance of amount `1n`. A later `issue({ amount, controlA
 
 Do not write unit tests. Do not add a file that compiles the artifact and counts opcodes, and do not add a test per `require`. Write one end-to-end test against this running stack, and make that one complete.
 
-The test is the contract's real life, in order: the stack answers, coins arrive from the faucet, assets are issued only when the contract locks them, the artifact is registered and funded, each spend function a party can run is run, and the indexer shows the coin leaving on `vtxo_spent`. A continuation pays the next script that function names. A coin whose reading moves is asserted by the amount on the continuing output. A path that must fail is one step in that same test, with the output or the clock the contract rejects.
+The test is the contract's real life, in order, in this one file: the stack answers, coins arrive from the faucet, assets are issued only when the contract locks them, the artifact is registered and funded, each spend function a party can run is run, and the indexer shows the coin leaving on `vtxo_spent`. A continuation pays the next script that function names. A coin whose reading moves is asserted by the amount on the continuing output. A path that must fail is one step in that same test, with the output or the clock the contract rejects.
 
-One test fails if someone sends sats to the contract address and the UI counts that coin as the contract's position. That send is a second coin. Only a spend that continues the contract coin changes the position.
+One of those steps sends sats to the contract address and fails if the UI counts that coin as the contract's position. That send is a second coin. Only a spend that continues the contract coin changes the position.
 
 Virtual txids are not on Esplora. Assert through the indexer. Mine, then ask Esplora, only for an unrolled exit.
 
