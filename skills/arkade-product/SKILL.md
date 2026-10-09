@@ -1,38 +1,30 @@
 ---
 name: arkade-product
 description: >
-  Decide the Arkade product before writing a contract. Use when a coin, a
-  balance, a deposit, a split, a countdown, or an operator-down screen is
-  still unnamed. Run before writing-arkade-contracts. Do not use for arkadec,
-  the SDK, or regtest.
+  Decide what an Arkade contract tracks before writing it. Use when a coin, a
+  balance, a direct send, or who may choose the outputs is still unnamed. Run
+  before writing-arkade-contracts. Do not use for arkadec, timelocks, the SDK,
+  or regtest.
 ---
 
-# Decide the product
+# Decide the contract
 
-Run this before `writing-arkade-contracts`. The `.ark` file records choices already made. A screen that lists every function is the form this skill exists to prevent.
+Run this before `writing-arkade-contracts`. The `.ark` file records choices already made. A screen that lists every function is the form this skill exists to prevent. Clocks and the operator-down path are that writing skill's job.
 
 ## A coin is not a balance
 
-A coin on a script is one output. A direct send creates a second coin beside the mint. Only a spend that continues the mint changes the pot. The screen must say which of those two the user just did.
+A coin on a script is one output. A direct send creates a second coin beside the one the contract continues. Only a spend that pays the continuation script changes the position the contract tracks. The screen must say which of those two the user just did.
 
-## A require is not a secret
+## A require is not authorization
 
-A covenant with no tapscript is the server plus the tweaked emulator. Anyone who can build the transaction can pass it. Burning tokens is not bearer authorization.
+A covenant with no tapscript is the server plus the tweaked emulator. Anyone who can build the transaction can pass it. A `require` checks the transaction. It does not identify who may move the coins.
 
-## The holder signs by spending
+## The receiver signs by spending
 
-The holder's key is on the script they named when they received the tokens, as in `compiler/examples/option/option_intent.ark` (`OptionIntent`). Spending those coins is the signature. A standing address can accept sats and name where the tokens go. A backend may submit that spend. It may not choose the outputs.
+The receiver's key is on the script they named when they took the coins, as in `compiler/examples/option/option_intent.ark`. Spending those coins is the signature. A standing address can accept sats and name the outputs. A backend may submit that spend. It may not choose the outputs.
 
-## Pin the split in the address
+## Pin the outputs in the address
 
-If the split is a function argument of the guardian's spend, the guardian can pay themselves. Pin the split in the address the winner funds. The guardian can only approve those outputs, or send the sats and the tokens back.
-
-## Product clocks are app state
-
-Product clocks are not `checkTime`. `checkTime` is the emulator, and the operator can open it early. A join window and a veto are app state, with a visible countdown. Say what each number does. Do not label it "minutes."
-
-## Operator down
-
-If the operator is down, say so. Tokens already on the user's script stay theirs. The mint does not move. Do not offer another deposit or a settlement.
+If the output scripts are arguments of the function the submitter calls, the submitter can pay themselves. Pin those scripts in the address that gets funded. That function can approve those outputs, or return the coins to the funder.
 
 Then write the contract, spend the artifact, build the one next action, and prove it on regtest. When the contract changes, the app README changes in the same commit.

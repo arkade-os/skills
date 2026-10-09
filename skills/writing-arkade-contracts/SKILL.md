@@ -22,9 +22,9 @@ Run `arkade-product` first. This file records those choices. It does not invent 
 
 ## The leaf rule
 
-A covenant function with no matching tapscript is the server plus the function-tweaked emulator. Anyone who can build that transaction can pass the `require`. That is not a secret, and burning tokens is not bearer authorization.
+A covenant function with no matching tapscript is the server plus the function-tweaked emulator. Anyone who can build that transaction can pass the `require`. A `require` checks the transaction. It does not identify who may move the coins.
 
-A leaf that is the holder's signature names their key on the script they received, as `compiler/examples/option/option_intent.ark` does. Spending those coins is the signature. A standing address accepts sats and names the outputs in its constructor. The spender does not choose them.
+A leaf that is the receiver's signature names their key on the script they took the coins on, as `compiler/examples/option/option_intent.ark` does. Spending those coins is the signature. A standing address accepts sats and names the outputs in its constructor. The submitter does not choose them.
 
 ```ark
 function finalize() {
@@ -35,13 +35,13 @@ function finalize() {
 
 `userScript` and `optionScript` are constructor `bytes32`s, agreed when the address was funded. A `checkMultisig` of keys fixed in the constructor only says who may sign. It does not say where the value goes. Put the standing offer beside `compiler/examples/escrow/escrow.ark`, and start from `OptionIntent` when the receiver's script is the authorization.
 
-If the split is a function argument, the signer of that function can pay themselves. Pin the split in the address the winner funds. That spend can approve those outputs, or send the sats and the tokens back.
+If the output scripts are arguments of the function, its signer can pay themselves. Pin those scripts in the address that gets funded. That spend approves those outputs, or returns the coins to the funder.
 
 ## The anchor
 
-The first mint leaves one unit of the control asset on the coin. A reissue cannot name the control asset, so that unit is the anchor the next mint continues. `.withAsset()` moves a group that already exists. It cannot express a fresh issue.
+The first issuance leaves one unit of the control asset on the coin. A reissue cannot name the control asset, so that unit is the anchor the next issuance continues. `.withAsset()` moves a group that already exists. It cannot express a fresh issue.
 
-330 sats is the carrier on a Taproot output. The pot is the sats above that carrier. A direct send of sats to the contract address is a second coin. It does not continue the mint.
+330 sats is the carrier on a Taproot output. The value the contract tracks is the sats above that carrier, or the asset amount on the continuing coin. A direct send of sats to the contract address is a second coin. It does not continue the contract.
 
 ## Start from working code
 
@@ -98,7 +98,7 @@ Reconstruct oracle messages with the exact field order and encoding used by the 
 
 Do not mix time domains:
 
-- `checkTime(timestamp)` reads the emulator clock in Unix seconds and compiles to `OP_CHECKTIME`. Put it in `require`. The operator runs that clock and can accept the spend early. Offchain spends of the leaf are rebuilt with nLockTime 0, so `tx.time` does not enforce the same deadline.
+- `checkTime(timestamp)` reads the emulator clock in Unix seconds and compiles to `OP_CHECKTIME`. Put it in `require`. The operator runs that clock and can accept the spend early. Offchain spends of the leaf are rebuilt with nLockTime 0, so `tx.time` does not enforce the same deadline. The path when the operator cannot co-sign is `older(serverExitDelay)` on a tapscript the owner signs. Neither clock is an application countdown.
 - Use `tx.time` for Bitcoin nLockTime/CLTV.
 - Write timelock literals as `older(blocks(n))`, `older(seconds(n))`, `after(blocks(height))`, or `after(seconds(timestamp))`. `seconds(n)` in `older` must be a multiple of 512 and compiles to the BIP68 time-based sequence. A parameter or a unitless literal is pushed raw, so a CSV parameter must already be the BIP68 sequence. Public arkd rejects block-type timelocks, so prefer `older(serverExitDelay)` on exit leaves. The CSV counter starts when the output is mined, not when the virtual coin is created.
 - `tx.offchainTime` is gone.
@@ -182,7 +182,7 @@ An attestation is a signature over a message the contract rebuilds in the signer
 1. Sketch constructor state, witness inputs, authorizers, and output positions before writing the body.
 2. Adapt the closest example instead of inventing a new pattern.
 3. Compile after each structural change.
-4. Do not add a unit test. The proof is the `arkade-regtest` file: the contract's real life, a direct send that the UI must not count as a deposit, and an operator-down case that does not broadcast. Helpers in that file go at the end.
+4. Do not add a unit test. The proof is the `arkade-regtest` file: the contract's real life, and a direct send that the UI must not count as the contract's position. Helpers in that file go at the end.
 5. Run `compiler/playground/build.sh` when a playground example changes.
 
 `arkade-product` comes before this skill. Spending that artifact, building the one next action, and running regtest are `arkade-contract`, `arkade-product-ui`, and `arkade-regtest`.

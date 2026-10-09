@@ -1,15 +1,15 @@
 ---
 name: arkade-product-ui
 description: >
-  Build the one next action for an Arkade product. Use after arkade-product
-  and arkade-contract, when the screen must fund, continue a mint, or say the
-  operator is down. Emil's skills are motion after that flow is right. Do not
-  use for contract authoring, the SDK, or Arkade regtest.
+  Build the one next action for an Arkade contract. Use after arkade-product
+  and arkade-contract, when the screen must fund a standing address or
+  continue that coin. Emil's skills are motion after that flow is right. Do
+  not use for contract authoring, timelocks, the SDK, or Arkade regtest.
 ---
 
 # Arkade contract UI
 
-The screen is a client of the product decided in `arkade-product` and the artifact compiled in this project. It offers one next action. Hide a function the user cannot satisfy. Do not show a witness, a txid, or a control token on that path. Connect and send open in a new tab and return to the same pot address.
+The screen is a client of the choices in `arkade-product` and the artifact compiled in this project. It offers one next action. Hide a function the user cannot satisfy. Do not show a witness, a txid, or a control asset on that path. Connect and send open in a new tab and return to the same standing address.
 
 The design sources are separate repositories. Use them when those skills are installed. Otherwise clone [emilkowalski/skills](https://github.com/emilkowalski/skills) and [pbakaus/impeccable](https://github.com/pbakaus/impeccable) and read the skill files named below. They are not application dependencies. Emil's skills are for motion after the flow is right. They are not a substitute for the flow.
 
@@ -25,12 +25,12 @@ Numbers the user sees are the integers the covenant computes, in the units the c
 
 Say when the page does not broadcast. A hash of the form fields is not a script, an address, or a payment.
 
-Keep the clocks apart. `checkTime` is the emulator clock. `tx.time` is nLockTime. `older` starts when the output is mined, which is after unroll. One control does not represent both. Enable a covenant spend when `getUtxos()` returns a spendable coin. For an `older` exit, track the unrolled on-chain output and its maturity separately; show a loader while that state is unknown.
+Show each clock the contract defines, under the name `writing-arkade-contracts` gives it. One control does not stand for two of them. Enable a covenant spend when `getUtxos()` returns a spendable coin. For an `older` exit, track the unrolled on-chain output and its maturity separately; show a loader while that state is unknown.
 
 External data fails closed. Show the failure. Do not substitute a price, a balance, or a confirmation the feed did not return.
 
 ## Verify
 
-Walk the one next action: fund the standing address, continue the mint, and the exit the user can actually reach. Then a direct send that must not count as a deposit, an operator-down screen that does not broadcast, a rejected `require`, and a second page that reads the same contract row. Desktop and a narrow viewport.
+Walk the one next action: fund the standing address, continue that coin, and the exit this user can reach. Then a direct send that must not count as the contract's position, a rejected `require`, and a second page that reads the same contract row. Desktop and a narrow viewport.
 
 A screenshot of the resting screen is not that check.

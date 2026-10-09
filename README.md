@@ -10,7 +10,7 @@ npx skills add arkade-os/skills
 
 ## What to do
 
-1. **Decide the product.** Follow `arkade-product`. A coin is not a balance. A `require` is not a secret. Pin the split in the address the winner funds. Product clocks are app state. If the operator is down, say so.
+1. **Decide the contract.** Follow `arkade-product`. A coin is not a balance. A `require` is not authorization. Pin the outputs in the address that gets funded.
 
 2. **Write the contract.** Follow `writing-arkade-contracts`. It clones [arkade-os/compiler](https://github.com/arkade-os/compiler) and runs `arkadec`. Commit the `.ark` file and the artifact. Leave `compiler/` untracked. When the contract changes, the app README changes in the same commit.
 
@@ -24,4 +24,4 @@ npx skills add arkade-os/skills
    node regtest/regtest.mjs start --env .env.regtest --profile ark --profile emulator
    ```
 
-   One test fails if a direct send of sats is counted as a deposit. A second test shows the operator-down sentence and does not broadcast. Helpers go at the end of that file. Leave `regtest/` untracked.
+   One test fails if a direct send of sats is counted as the contract's position. Helpers go at the end of that file. Leave `regtest/` untracked.
