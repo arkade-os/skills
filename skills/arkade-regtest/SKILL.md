@@ -66,6 +66,10 @@ Do not write unit tests. Do not add a file that compiles the artifact and counts
 
 The test is the contract's real life, in order: the stack answers, coins arrive from the faucet, assets are issued only when the contract locks them, the artifact is registered and funded, each spend function a party can run is run, and the indexer shows the coin leaving on `vtxo_spent`. A continuation pays the next script that function names. A coin whose reading moves is asserted by the amount on the continuing output. A path that must fail is one step in that same test, with the output or the clock the contract rejects.
 
+One test fails if someone sends sats to the contract address and the UI counts them as a deposit. That send is a second coin. Only a spend that continues the mint changes the pot.
+
+A second test is "operator unreachable." The screen says the operator is down, tokens already on the user's script stay theirs, and the mint does not move. It does not offer another deposit or a settlement, and it does not broadcast.
+
 Virtual txids are not on Esplora. Assert through the indexer. Mine, then ask Esplora, only for an unrolled exit.
 
 A refused emulator signature is a key mismatch until `hex.encode(client.emulatorKey)` differs from the pubkey the emulator serves. Compare those before changing the contract.

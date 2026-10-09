@@ -18,6 +18,31 @@ git clone --depth 1 https://github.com/arkade-os/compiler.git compiler
 
 Ignore `compiler/`. `arkadec` is that checkout. Commit the `.ark` file and the artifact. Leave the compiler checkout untracked. Paths below are inside the clone.
 
+Run `arkade-product` first. This file records those choices. It does not invent them.
+
+## The leaf rule
+
+A covenant function with no matching tapscript is the server plus the function-tweaked emulator. Anyone who can build that transaction can pass the `require`. That is not a secret, and burning tokens is not bearer authorization.
+
+A leaf that is the holder's signature names their key on the script they received, as `compiler/examples/option/option_intent.ark` does. Spending those coins is the signature. A standing address accepts sats and names the outputs in its constructor. The spender does not choose them.
+
+```ark
+function finalize() {
+  require(tx.outputs[0].scriptPubKey == userScript, "user");
+  require(tx.outputs[1].scriptPubKey == optionScript, "option");
+}
+```
+
+`userScript` and `optionScript` are constructor `bytes32`s, agreed when the address was funded. A `checkMultisig` of keys fixed in the constructor only says who may sign. It does not say where the value goes. Put the standing offer beside `compiler/examples/escrow/escrow.ark`, and start from `OptionIntent` when the receiver's script is the authorization.
+
+If the split is a function argument, the signer of that function can pay themselves. Pin the split in the address the winner funds. That spend can approve those outputs, or send the sats and the tokens back.
+
+## The anchor
+
+The first mint leaves one unit of the control asset on the coin. A reissue cannot name the control asset, so that unit is the anchor the next mint continues. `.withAsset()` moves a group that already exists. It cannot express a fresh issue.
+
+330 sats is the carrier on a Taproot output. The pot is the sats above that carrier. A direct send of sats to the contract address is a second coin. It does not continue the mint.
+
 ## Start from working code
 
 Read the closest contracts in `compiler/examples/`, then verify syntax against `compiler/src/parser/grammar.pest` and behavior against the compiler and tests. Treat examples and tests as authoritative when prose disagrees.
@@ -108,6 +133,7 @@ Check the current grammar rather than preserving workarounds from old examples.
 |---|---|
 | Basic covenant plus unilateral exit | `compiler/examples/htlc/htlc.ark` |
 | Oracle attestation, introspection-pinned payouts, branching output layouts | `compiler/examples/escrow/escrow.ark` |
+| Standing offer: outputs pinned in the address the funder pays | `compiler/examples/option/option_intent.ark` |
 | Recursive state and cross-input validation | `compiler/examples/stability/stability_vault.ark` |
 | Conditional output and dust routing | `compiler/examples/stability/stability_offer.ark` |
 | Asset introspection | `compiler/examples/token_vault/token_vault.ark` |
@@ -156,7 +182,7 @@ An attestation is a signature over a message the contract rebuilds in the signer
 1. Sketch constructor state, witness inputs, authorizers, and output positions before writing the body.
 2. Adapt the closest example instead of inventing a new pattern.
 3. Compile after each structural change.
-4. Do not add a unit test. One functional end-to-end test against a running regtest stack is the proof, written as the `arkade-regtest` skill describes. Helpers in that file go at the end.
+4. Do not add a unit test. The proof is the `arkade-regtest` file: the contract's real life, a direct send that the UI must not count as a deposit, and an operator-down case that does not broadcast. Helpers in that file go at the end.
 5. Run `compiler/playground/build.sh` when a playground example changes.
 
-Spending that artifact, building the product UI, and running a regtest stack are the `arkade-contract`, `arkade-product-ui`, and `arkade-regtest` skills.
+`arkade-product` comes before this skill. Spending that artifact, building the one next action, and running regtest are `arkade-contract`, `arkade-product-ui`, and `arkade-regtest`.

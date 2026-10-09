@@ -1,11 +1,10 @@
 ---
 name: arkade-contract
 description: >
-  Spend any Arkade smart contract. Load an arkadec artifact with
-  programFromArtifact and spend it through @arkade-os/sdk: constructor
-  arguments, covenant outputs, tapleaf spends, VTXOs, and ContractManager.
-  Use when the user says Arkade contract, Bitcoin covenant, or
-  programFromArtifact. Do not use for the product UI or Arkade regtest.
+  Spend any Arkade smart contract on mutinynet. The page subscribes,
+  ContractManager writes, and the screen reads the repository after
+  vtxo_received and vtxo_spent. Use for programFromArtifact and
+  @arkade-os/sdk. Do not use for the product decision, the UI, or regtest.
 ---
 
 # Spend any Arkade contract
@@ -81,7 +80,7 @@ const client = await arkade.Arkade.connect({
 });
 ```
 
-Mutinynet is `https://mutinynet.arkade.sh` for the operator and the indexer, `https://emulator.mutinynet.arkade.sh` for the emulator, `https://mempool.mutinynet.arkade.sh/api` for Esplora, and `https://explorer.mutinynet.arkade.sh/` for the Arkade explorer.
+Mutinynet is the default session: `https://mutinynet.arkade.sh` for the operator and the indexer, `https://emulator.mutinynet.arkade.sh` for the emulator, `https://mempool.mutinynet.arkade.sh/api` for Esplora, and `https://explorer.mutinynet.arkade.sh/` for the Arkade explorer. That build has no local faucet and no zeroed fees.
 
 Leave `identity` off when this session only watches or spends leaves that do not need a local signer. `ReadonlyWallet` is the wrong stand-in: it requires a pubkey and then watches that pubkey's scripts. Pass `identity` only when a leaf needs this session to sign.
 
@@ -141,6 +140,8 @@ const stop = manager.onContractEvent((event) => {
     // vtxo_spent: a function ran; the spending tapleaf says which
 });
 ```
+
+The page subscribes. `ContractManager` is the writer. The screen reads the repository after `vtxo_received` and `vtxo_spent`. A reload that still shows 0 is a failed test.
 
 `register()` stores the program, constructor args, and the server and emulator keys, and adds `pkScript` to the manager's one subscription. Do not also call `indexer.subscribeForScripts`. The same script again is a no-op and does not refetch history. If the first fetch fails, backfill with `manager.refreshVtxos({ scripts: [script], after: 0 })`.
 
