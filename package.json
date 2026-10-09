@@ -1,6 +1,6 @@
 {
     "name": "@arkade-os/skills",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "Agent skills for an Arkade contract: decide the product, write the contract, draw it, spend it, show one next action, and prove it on regtest.",
     "license": "MIT",
     "author": "Ark Labs",
