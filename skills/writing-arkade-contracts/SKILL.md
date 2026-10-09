@@ -37,6 +37,53 @@ function finalize() {
 
 If the output scripts are arguments of the function, its signer can pay themselves. Pin those scripts in the address that gets funded. That spend approves those outputs, or returns the coins to the funder.
 
+## Standing orders
+
+A standing order is that address, funded once. The funder does not come back online. A later transaction spends the order as one input. The order's `require`s check the outputs. `compiler/examples/option/option_intent.ark` and `compiler/examples/non_interactive_swap/non_interactive_swap.ark` are that shape: the offer is locked, and the other side completes it.
+
+The completing transaction still needs a signature only from whoever is spending their own extra input. The order itself does not ask the funder to sign.
+
+## A continuation draws on an order
+
+A contract that continues itself can take the standing order as another input and pull its value into the next coin.
+
+```ark
+function draw() {
+  require(tx.numInputs == 2, "standing order");
+  require(tx.inputs[1].scriptPubKey != tx.input.current.scriptPubKey, "one order");
+  require(tx.outputs[0].scriptPubKey == new Vault(amount));
+  require(tx.outputs[0].value >= tx.input.current.value);
+}
+```
+
+Input 0 is the continuing contract. Input 1 is the order. The order's own script is what allows this continuation: its constructor already named these outputs. Check `tx.numInputs` and the sibling script. A second copy of the same order must not reuse the same outputs. `compiler/examples/fuji_safe/fuji_safe.ark` is the self-continuation (`new FujiSafe(...)` copies every field that must stay).
+
+## A staging output postpones the payout
+
+A payee written in the constructor is fixed when the coin is created. A staging output moves that choice to a later call. This function pays a new coin whose script is the staging contract. The next call of that coin pays someone, or rolls the stage again.
+
+```ark
+function postpone() {
+  require(tx.outputs[0].scriptPubKey == new Staging(amount));
+  require(tx.outputs[0].value >= tx.input.current.value);
+}
+```
+
+`amount` here is computed in this call. The original constructor never stored the payee. The later call is the one that pays, and it still has to name its outputs from its own rules. An argument that lets the caller pick any script is the same hole as an unpinned output.
+
+## A token is the right
+
+`checkSig` means that pubkey has to be online. A token on a script the receiver can spend is the right instead. Dispense it onto their script. Exercising the right spends that coin and burns the token: the group leaves with fewer units than it entered, or the units go to an output the contract names and nobody can spend.
+
+```ark
+function exercise() {
+  let group = tx.assetGroups.find(rightTxid, rightGidx);
+  require(group.sumInputs == group.sumOutputs + 1, "burn the right");
+}
+```
+
+No `checkSig` on that path. Spending the coin that held the token is the authorization. `compiler/examples/fuji_safe/fuji_safe.ark` burns by paying a constructor-pinned burn script. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance. Those are different burns: one spends a right, the other retires the mint.
+
 ## The anchor
 
 The first issuance leaves one unit of the control asset on the coin. A reissue cannot name the control asset, so that unit is the anchor the next issuance continues. `.withAsset()` moves a group that already exists. It cannot express a fresh issue.
@@ -133,7 +180,10 @@ Check the current grammar rather than preserving workarounds from old examples.
 |---|---|
 | Basic covenant plus unilateral exit | `compiler/examples/htlc/htlc.ark` |
 | Oracle attestation, introspection-pinned payouts, branching output layouts | `compiler/examples/escrow/escrow.ark` |
-| Standing offer: outputs pinned in the address the funder pays | `compiler/examples/option/option_intent.ark` |
+| Standing order: outputs pinned in the address the funder pays | `compiler/examples/option/option_intent.ark` |
+| Non-interactive completion of a locked offer | `compiler/examples/non_interactive_swap/non_interactive_swap.ark` |
+| Self-continuation, and a right burned to a named script | `compiler/examples/fuji_safe/fuji_safe.ark` |
+| Burn the control asset to end issuance | `compiler/examples/controlled_mint/controlled_mint.ark` |
 | Recursive state and cross-input validation | `compiler/examples/stability/stability_vault.ark` |
 | Conditional output and dust routing | `compiler/examples/stability/stability_offer.ark` |
 | Asset introspection | `compiler/examples/token_vault/token_vault.ark` |

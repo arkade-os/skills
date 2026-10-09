@@ -10,7 +10,7 @@ npx skills add arkade-os/skills
 
 ## What to do
 
-1. **Decide the contract.** Follow `arkade-product`. A coin is not a balance. A `require` is not authorization. Pin the outputs in the address that gets funded.
+1. **Decide the contract.** Follow `arkade-product`. A coin is not a balance. A `require` is not authorization. Pin the outputs in the address that gets funded. A standing order completes later without the funder. A token burn is the right, in place of `checkSig`.
 
 2. **Write the contract.** Follow `writing-arkade-contracts`. It clones [arkade-os/compiler](https://github.com/arkade-os/compiler) and runs `arkadec`. Commit the `.ark` file and the artifact. Leave `compiler/` untracked. When the contract changes, the app README changes in the same commit.
 
