@@ -3,13 +3,14 @@ name: arkade-contract
 description: >
   Spend any Arkade smart contract on mutinynet. The page subscribes,
   ContractManager writes, and the screen reads the repository after
-  vtxo_received and vtxo_spent. Use for programFromArtifact and
-  @arkade-os/sdk. Do not use for the product decision, the UI, or regtest.
+  vtxo_received and vtxo_spent. Use after covenant-viz, for
+  programFromArtifact and @arkade-os/sdk. Do not use for the product
+  decision, the picture, the UI, or regtest.
 ---
 
 # Spend any Arkade contract
 
-This skill is used from a fresh project. The artifact is produced by the `writing-arkade-contracts` skill (`arkadec` from a clone of [arkade-os/compiler](https://github.com/arkade-os/compiler)). This skill spends that committed JSON. The same steps cover any contract. Function names on `contract.functions` are the function names in the `.ark` file.
+This skill is used from a fresh project. The artifact is produced by the `writing-arkade-contracts` skill (`arkadec` from a clone of [arkade-os/compiler](https://github.com/arkade-os/compiler)). `covenant-viz` has already drawn the transactions. This skill spends that committed JSON. The same steps cover any contract. Function names on `contract.functions` are the function names in the `.ark` file. An output the picture does not show is not added here.
 
 Pull the SDK. It is not already in this project.
 

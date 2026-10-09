@@ -35,4 +35,4 @@ If the funder must sign every later spend, they have to be online. A standing or
 
 `checkSig` keeps a pubkey in the transaction. A token dispensed onto the receiver's script is the right instead. They exercise it by spending that coin and burning the token. The contract checks the burn. It does not ask for their signature.
 
-Then write the contract, spend the artifact, build the one next action, and prove it on regtest. When the contract changes, the app README changes in the same commit.
+Then write the contract, draw it with `covenant-viz`, spend the artifact, show the one next action from that picture, and prove it on regtest. When the contract changes, that mermaid story is regenerated in the same commit as the `.ark` file.
