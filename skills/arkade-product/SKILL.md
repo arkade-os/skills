@@ -17,15 +17,15 @@ A coin on a script is one output. A direct send creates a second coin beside the
 
 ## A require is not authorization
 
-A covenant with no tapscript is the server plus the tweaked emulator. Anyone who can build the transaction can pass it. A `require` checks the transaction. It does not identify who may move the coins.
+A covenant function with no matching tapscript is the server plus the function-tweaked emulator. Anyone who can build that transaction can pass the `require`. A `require` checks the transaction. It does not identify who may move the coins.
 
 ## The receiver signs by spending
 
-The receiver's key is on the script they named when they took the coins, as in `compiler/examples/option/option_intent.ark`. Spending those coins is the signature. A standing address can accept sats and name the outputs. A backend may submit that spend. It may not choose the outputs.
+The receiver's key is on the script they named when they took the coins, as in `compiler/examples/option/option_intent.ark`. Spending those coins is the signature. A standing address accepts sats and names the outputs in its constructor. A backend may submit that spend. The submitter does not choose the outputs.
 
 ## Pin the outputs in the address
 
-If the output scripts are arguments of the function the submitter calls, the submitter can pay themselves. Pin those scripts in the address that gets funded. That function can approve those outputs, or return the coins to the funder.
+If the output scripts are arguments of the function, its signer can pay themselves. Pin those scripts in the address that gets funded. That spend approves those outputs, or returns the coins to the funder.
 
 ## Who can be offline
 

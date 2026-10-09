@@ -22,6 +22,8 @@ Polish and motion come from [emilkowalski/skills](https://github.com/emilkowalsk
 
 The one next action is the operation the picture's current coin allows. Funding the standing address pays that address. It is not a function on `contract.functions`. A covenant spend is one function on `contract.functions`, named as in the `.ark` file, and only when this user can satisfy it and the picture draws that spend. Constructor fields that pin the outputs were collected when the address was funded. That spend sends the witnesses and outputs that function checks, and nothing else. A payment, a witness, or a second contract the picture does not draw is a second protocol. Leave it out.
 
+A direct send creates a second coin beside the one the contract continues. The screen must say which of those two the user just did. Only a spend that pays the continuation script changes the position the contract tracks.
+
 Numbers the user sees are the integers the covenant computes, in the units the contract uses. A display format is applied after that result. A preview that rounds in floating point and then spends the rounded value will disagree with the script.
 
 Say when the page does not broadcast. A hash of the form fields is not a script, an address, or a payment.
@@ -32,6 +34,6 @@ External data fails closed. Show the failure. Do not substitute a price, a balan
 
 ## Verify
 
-Walk the one next action the picture names: the coin the person sends, the continuation of that coin, and the exit this user can reach. Then the plain send beside the mint, which must not count as the contract's position, a rejected `require`, and a second page that reads the same contract row and shows the same next action. Desktop and a narrow viewport.
+Walk the one next action the picture names: the coin the person sends, the continuation of that coin, and the exit this user can reach. Then the direct send, which must not count as the contract's position, a rejected `require`, and a second page that reads the same contract row and shows the same next action. Desktop and a narrow viewport.
 
 A screenshot of the resting screen is not that check.

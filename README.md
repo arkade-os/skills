@@ -14,7 +14,7 @@ npx skills add arkade-os/skills
 
 2. **Write the contract.** Follow `writing-arkade-contracts`. It clones [arkade-os/compiler](https://github.com/arkade-os/compiler) and runs `arkadec`. Commit the `.ark` file and the artifact with the picture from the next step. Leave `compiler/` untracked.
 
-3. **covenant-viz.** Follow `covenant-viz`. Regenerate the short README story in mermaid in that same commit. The pictures, in order, are the coin the person sends, the plain send beside the mint, the rejected transaction, and who signs versus who can build a server-plus-emulator leaf. A `require` is not a secret.
+3. **covenant-viz.** Follow `covenant-viz`. Regenerate the short README story in mermaid in that same commit. The pictures, in order, are the coin the person sends, the direct send beside the continuation, the rejected transaction, and who signs versus who can build the server plus the function-tweaked emulator. A `require` is not authorization.
 
 4. **Spend.** Follow `arkade-contract`. Mutinynet is the default session: `https://mutinynet.arkade.sh`, `https://emulator.mutinynet.arkade.sh`, `https://mempool.mutinynet.arkade.sh/api`. The page subscribes. `ContractManager` writes. The screen reads the repository after `vtxo_received` and `vtxo_spent`. Leave `vendor/` untracked.
 

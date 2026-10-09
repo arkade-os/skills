@@ -2,8 +2,9 @@
 name: covenant-viz
 description: >
   Draw an Arkade covenant as a short README story in mermaid: the coin a
-  person sends, the plain send beside the mint, the rejected transaction,
-  and who signs versus who can build the server-plus-emulator leaf. Use
+  person sends, the direct send beside the continuation, the rejected
+  transaction, and who signs versus who can build the server plus the
+  function-tweaked emulator. Use
   after writing-arkade-contracts, in the same commit as the .ark file. An
   interactive page is only when a public input changes the payment. Do not
   use for arkadec, the SDK spend, or the product screen.
@@ -15,14 +16,14 @@ Run this after `writing-arkade-contracts` and before `arkade-contract`. The `.ar
 
 ## The story
 
-The deliverable is a short story in the app README: four mermaid pictures, in this order. Pictures 1 and 3 are one transaction each, inputs then a spine then outputs. Picture 2 places the plain send beside the mint. Picture 4 sets who signs opposite who can build the leaf. The caption is one sentence.
+The deliverable is a short story in the app README: four mermaid pictures, in this order. Pictures 1 and 3 are one transaction each, inputs then a spine then outputs. Picture 2 places the direct send beside the continuation. Picture 4 sets who signs opposite who can build the leaf. The caption is one sentence.
 
 1. The coin the person sends.
-2. The spend that looks like it but is not: a plain send beside the mint.
+2. The direct send: a second coin beside the continuation.
 3. The rejected transaction.
-4. Who signs, versus who can build a server-plus-emulator leaf. State that a `require` is not a secret.
+4. Who signs, versus who can build the server plus the function-tweaked emulator. A `require` is not authorization.
 
-Picture 1 uses this shape. The node text comes from the `.ark` file. Leave these placeholders out of the README. The spine names the function and the value outputs, and `sats in = out` when the script accepts the transaction.
+Picture 1 uses this shape. The node text comes from the `.ark` file. Leave these placeholders out of the README. The spine names the function and the value outputs, with the comparison the script writes.
 
 ```mermaid
 flowchart LR
@@ -36,7 +37,7 @@ An interactive page is only when a public input changes the payment, as in optio
 
 Amounts that are not in the `.ark` file do not appear. 330 sats is the carrier. The pot is the sats above it. A constructor parameter is drawn under its name (`amount`, `collateral`, `premium`). A sample from a test, a fixture, or `/v1/info` is not a number in the story.
 
-On a picture the script accepts, the sats that leave are the sats that arrive, and an asset moves in the same units. Draw the extension and the anchor once, under the value outputs, with no sat amount. An output the script does not pin is labeled unconstrained.
+Show the comparison the script writes. A `>=` check is not `sats in = out`. An output the script does not pin is labeled unconstrained. An asset moves in the same units. Draw an extension output only when the contract reads `tx.packet`, and the anchor only when a control asset continues. Neither gets a sat amount.
 
 ## The four pictures
 
@@ -44,16 +45,16 @@ On a picture the script accepts, the sats that leave are the sats that arrive, a
 
 The person funds the address. Name the sender. The output is that one coin. Label the carrier as 330 sats and the pot as the sats above it. Add the asset when the `.ark` file names its amount. This is the position the contract continues.
 
-### 2. The spend that looks like it but is not
+### 2. The direct send
 
-Draw two transactions side by side. One is a plain send of sats to the same address. The other is the mint: the spend that pays the continuation, or the issuance that leaves the control unit on the coin. The plain send goes to that same address. It is a second coin. It does not change the position.
+Draw two transactions side by side. One is a direct send to the same address. The other is the spend that pays the continuation script, or the issuance that leaves the anchor on the coin. A direct send creates a second coin beside the one the contract continues. Only a spend that pays the continuation script changes the position the contract tracks.
 
 ```mermaid
 flowchart LR
-  sender["sender"] --> plain["plain send"]
-  plain --> second["second coin<br/>same address"]
-  coin["the coin"] --> mint["mint<br/>continuation"]
-  mint --> position["the position"]
+  sender["sender"] --> sent["direct send"]
+  sent --> second["second coin<br/>same address"]
+  coin["the coin"] --> next["continuation"]
+  next --> position["the position"]
 ```
 
 ### 3. The rejected transaction
@@ -71,14 +72,14 @@ flowchart LR
 Two sides.
 
 - Who signs: the key on the tapscript, the oracle signature the script checks, or the receiver spending the script they named when they took the coins, as `OptionIntent` does.
-- Who can build: a covenant with no tapscript is the server plus the function-tweaked emulator. Anyone who can build that transaction can pass it.
+- Who can build: a covenant function with no matching tapscript is the server plus the function-tweaked emulator. Anyone who can build that transaction can pass the `require`.
 
-The caption is: a `require` is not a secret. It checks the transaction. It is not a key, and it does not say who may move the coins.
+The caption is: a `require` is not authorization. It checks the transaction. It does not identify who may move the coins.
 
 ```mermaid
 flowchart LR
   signs["who signs<br/>the key on the leaf"]
-  builds["who can build<br/>server + tweaked emulator"]
+  builds["who can build<br/>server + function-tweaked emulator"]
 ```
 
 Close with two lines. Enforced: the checks these pictures turned on. Not claimed: oracle honesty, liveness, and a destination the script does not pin.
@@ -101,6 +102,6 @@ The interactive page is that options case. The control sets the public number th
 
 ## Check
 
-The README and the `.ark` file are in one commit. The four pictures are in order. Every satoshi amount is 330 or a literal in the `.ark` file. The plain send is not the mint. The rejected picture stays rejected. Picture 4 states that a `require` is not a secret. There is no price-function section unless the script reads a public number, and no interactive page unless that number changes the payment.
+The README, the `.ark` file, and the artifact are in one commit. The four pictures are in order. Every satoshi amount is 330 or a literal in the `.ark` file. The direct send is not the continuation. The rejected picture stays rejected. Picture 4 states that a `require` is not authorization. There is no price-function section unless the script reads a public number, and no interactive page unless that number changes the payment.
 
 Then spend the artifact with `arkade-contract`. The screen follows this picture and shows one next action. It does not invent a second protocol.
