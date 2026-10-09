@@ -1,7 +1,7 @@
 {
     "name": "@arkade-os/skills",
-    "version": "0.1.3",
-    "description": "Agent skills for an Arkade smart contract: compile with arkadec, spend with @arkade-os/sdk, and prove it on Arkade regtest.",
+    "version": "0.1.4",
+    "description": "Agent skills for an Arkade contract: decide what it tracks, write it, spend it, show one next action, and prove it on regtest.",
     "license": "MIT",
     "author": "Ark Labs",
     "homepage": "https://github.com/arkade-os/skills#readme",
