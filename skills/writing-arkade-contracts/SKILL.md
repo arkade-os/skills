@@ -49,14 +49,14 @@ The completing transaction still needs a signature only from whoever is spending
 
 ## A continuation draws on an order
 
-A contract that continues itself can take the standing order as another input and pull its value into the next coin.
+A contract that continues itself can take the standing order as another input and pull its value into the next coin. That output's value is at least this coin plus the order. A fee or another payee is a further output, with its script and amount checked, subtracted from that minimum.
 
 ```ark
 function draw() {
   require(tx.numInputs == 2, "standing order");
   require(tx.inputs[1].scriptPubKey != tx.input.current.scriptPubKey, "one order");
   require(tx.outputs[0].scriptPubKey == new Vault(amount));
-  require(tx.outputs[0].value >= tx.input.current.value);
+  require(tx.outputs[0].value >= tx.input.current.value + tx.inputs[1].value);
 }
 ```
 
@@ -86,7 +86,7 @@ function exercise() {
 }
 ```
 
-No `checkSig` on that path. Spending the coin that held the token is the authorization. `compiler/examples/fuji_safe/fuji_safe.ark` burns by paying a constructor-pinned burn script. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance. Those are different burns: one spends a right, the other retires the mint.
+No `checkSig` on that path. Spending the coin that held the token is the authorization. `rightTxid` and `rightGidx` are constructor fields naming that token. `compiler/examples/fuji_safe/fuji_safe.ark` pays a constructor-pinned burn script and still requires the borrower's signature. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance, and the issuer signs that path. Those are different burns: one spends a right, the other retires the mint.
 
 ## The anchor
 
