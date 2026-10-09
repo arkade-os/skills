@@ -5,7 +5,8 @@ description: >
   arkadec to an artifact. Use for constructor state, spend functions,
   tapscript leaves, witnesses, output layouts, oracle checks, recursive
   beacons, timelocks, and fixed-point arithmetic. Do not use for compiler
-  implementation, spending the artifact, the product UI, or Arkade regtest.
+  implementation, spending the artifact, the covenant pictures, the product
+  UI, or Arkade regtest.
 ---
 
 # Writing Arkade Contracts
@@ -16,7 +17,7 @@ This skill is used from a fresh project. The compiler is not already checked out
 git clone --depth 1 https://github.com/arkade-os/compiler.git compiler
 ```
 
-Ignore `compiler/`. `arkadec` is that checkout. Commit the `.ark` file and the artifact. Leave the compiler checkout untracked. Paths below are inside the clone.
+Ignore `compiler/`. `arkadec` is that checkout. Commit the `.ark` file, the artifact, and the `covenant-viz` README story in one commit. Leave the compiler checkout untracked. Paths below are inside the clone.
 
 Run `arkade-product` first. This file records those choices. It does not invent them.
 
@@ -238,4 +239,4 @@ An attestation is a signature over a message the contract rebuilds in the signer
 4. Do not add a unit test. The proof is the `arkade-regtest` file: the contract's real life, and a direct send that the UI must not count as the contract's position. Helpers in that file go at the end.
 5. Run `compiler/playground/build.sh` when a playground example changes.
 
-`arkade-product` comes before this skill. Spending that artifact, building the one next action, and running regtest are `arkade-contract`, `arkade-product-ui`, and `arkade-regtest`.
+`arkade-product` comes before this skill. `covenant-viz` redraws the README story in the same commit as the `.ark` file. Spending that artifact, showing the one next action from that picture, and running regtest are `arkade-contract`, `arkade-product-ui`, and `arkade-regtest`.
