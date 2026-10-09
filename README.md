@@ -24,4 +24,4 @@ npx skills add arkade-os/skills
    node regtest/regtest.mjs start --env .env.regtest --profile ark --profile emulator
    ```
 
-   One test fails if a direct send of sats is counted as the contract's position. Helpers go at the end of that file. Leave `regtest/` untracked.
+   Inside that one end-to-end file, a direct send of sats must not count as the contract's position. Helpers go at the end of the file. Leave `regtest/` untracked.
