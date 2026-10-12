@@ -148,7 +148,7 @@ The page subscribes. `ContractManager` is the writer. The screen reads the repos
 
 `getUtxos()` reads the repository once the contract is registered. It drops spent and unrolled coins. An empty list does not mean the contract was never funded. The spent coin arrives on `vtxo_spent`. Its `spentBy` is the spending transaction.
 
-`wallet.restore()` will not find this contract. Nothing in a seed derives the script. The repository row is the backup. In-memory repositories are empty after a restart, so `register()` again with the same program, args, and keys. A durable repository reloads the row when `ContractManager.create` runs. Rebuild with `arkade.ArkadeContract.fromContract(client, row)` so a later server key does not point the watcher at a different script.
+The indexer coin at txid:vout is the position. `isSpent` false means open. `spentBy` is the spend. Constructor arguments are not on the transaction. A second client restores with the artifact, those arguments, the server key, and the emulator key: `register()`, then `refreshVtxos`. Copying the first client's storage is not the restore. `wallet.restore()` still cannot derive the script from a seed.
 
 Leave `metadata.genericallySpendable` unset unless this contract's coins are safe in a generic wallet send. The arkade handler treats anything but explicit `true` as not generically spendable, and `createContract` is first-writer-wins for that script.
 

@@ -34,6 +34,6 @@ External data fails closed. Show the failure. Do not substitute a price, a balan
 
 ## Verify
 
-Walk the one next action the picture names: the coin the person sends, the continuation of that coin, and the exit this user can reach. Then the direct send, which must not count as the contract's position, a rejected `require`, and a second page that reads the same contract row and shows the same next action. Desktop and a narrow viewport.
+Walk the one next action the picture names: the coin the person sends, the continuation of that coin, and the exit this user can reach. Then the direct send, which must not count as the contract's position, a rejected `require`, and a second page with no shared storage, only the outpoint, the artifact, and the params, that shows the same next action. Desktop and a narrow viewport.
 
 A screenshot of the resting screen is not that check.
