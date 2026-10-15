@@ -29,7 +29,7 @@ Stop with `node regtest/regtest.mjs stop` (volumes stay). Wipe with `node regtes
 
 Defaults that matter: arkd `http://localhost:7070` (admin `7071`), Esplora `http://localhost:3000/api`, emulator `http://localhost:7073`, arkd wallet `http://localhost:6060`. The SDK's regtest Esplora default is that `/api` URL. Bitcoin Core RPC is `localhost:18443`, user `admin1`, password `123`.
 
-arkd's default locktimes in this stack are below 512, so they are blocks. Public arkd rejects that. A test of an exit leaf passes the duration the target operator expects: a block count with `csv.type` `"blocks"` on this stack, or seconds (a multiple of 512) with `csv.type` `"seconds"` for public arkd.
+arkd's default locktimes in this stack are below 512, so they are blocks. Public arkd rejects that. An exit leaf written as `older(serverExitDelay)` takes this operator's `unilateralExitDelay`. The session fills `<SERVER_EXIT_DELAY>`. Do not pass an exit delay and do not rewrite `csv.type`. A constructor `int` used as `older(name)` is a raw BIP68 sequence: a block count on this stack, or seconds (a multiple of 512) for public arkd.
 
 ## Fund
 
