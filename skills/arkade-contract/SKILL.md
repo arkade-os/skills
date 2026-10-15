@@ -42,7 +42,9 @@ const program = programFromArtifact(artifact);
 
 `checkTime` is `OP_CHECKTIME`. The SDK already supports it.
 
-`older(n)` is a CSV. The compiler pushes `n` without the BIP68 seconds bit. `programFromArtifact` binds that placeholder as `{ type: "blocks" }`, and `timelockToSequence` encodes the constructor integer as a block count. Multiplying it by 512 does not set the BIP68 seconds bit. Public arkd rejects a block-type exit leaf. For that exit, set the leaf's `csv.type` to `"seconds"` on the program before `client.contract`, and pass the duration in seconds, a multiple of 512. A literal sequence already in the artifact is decoded with `sequenceToTimelock`; leave it. Leave every other opcode alone. Regtest arkd accepts a block count below 512, so a regtest exit can keep `"blocks"` and pass that count.
+`older(serverExitDelay)` is the exit leaf. The compiler emits `<SERVER_EXIT_DELAY>`. That name is not a constructor input. Do not declare `exit` or `exitDelay`, and do not pass one. `programFromArtifact` declares `SERVER_EXIT_DELAY` and binds the CSV as a sequence. `client.contract()` fills it from `getInfo().unilateralExitDelay`, as the BIP68 sequence, the same way an omitted `server` is filled from `client.serverKey`. A different value is refused. A seconds delay that is not a multiple of 512 is refused. Do not change `csv.type`. If the installed SDK leaves `$SERVER_EXIT_DELAY` undeclared, that checkout is behind the compiler. Do not put the delay back in the constructor.
+
+A constructor `int` in `older(name)` is a different leaf, for a delay that varies per instance. The artifact pushes that integer raw. Pass the BIP68 sequence. A literal sequence already in the artifact is decoded with `sequenceToTimelock`. Leave every other opcode alone.
 
 ## Open a session
 
@@ -106,7 +108,7 @@ A witness program is `DefaultVtxo.Script({ pubKey, serverPubKey: client.serverKe
 
 A receive address is `vtxo.address(network.hrp, client.serverKey)`. It is where a spend pays. It does not replace a `pubkey` argument.
 
-If the program declares `server` or `user` and the caller omits them, `contract()` fills the client server key and the identity key. Explicit args win.
+If the program declares `server` or `user` and the caller omits them, `contract()` fills the client server key and the identity key. Explicit args win. `SERVER_EXIT_DELAY` is reserved the same way `server` is. `contract()` fills it from the operator. Do not pass an exit delay.
 
 ## Spend
 
@@ -154,4 +156,4 @@ Leave `metadata.genericallySpendable` unset unless this contract's coins are saf
 
 Do not poll Esplora for a virtual transaction id. `GET /api/tx/<virtualTxid>` is 404. Ask Mempool only about a transaction that has been unrolled. On mutinynet that Esplora API is `https://mempool.mutinynet.arkade.sh/api`. The Arkade explorer is `https://explorer.mutinynet.arkade.sh/`.
 
-`checkTime` reads the emulator clock, in unix seconds. `older(n)` has not started before unroll. Read the operator minimum from `arkadeOperator.getInfo()` (`unilateralExitDelay`).
+`checkTime` reads the emulator clock, in unix seconds. `older(serverExitDelay)` has not started before unroll. The delay is the operator's `unilateralExitDelay` from `arkadeOperator.getInfo()`. The session fills `<SERVER_EXIT_DELAY>`. Do not pass it.
