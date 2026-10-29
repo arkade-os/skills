@@ -218,7 +218,7 @@ cargo run --manifest-path compiler/Cargo.toml -- path/to/contract.ark -o contrac
 
 One contract or library per file. `import "./other.ark";` is relative to the importing file, direct-import scope, depth 128, no cycles. The entry contract owns the artifact's spend groups. Imported files supply constructors, constants, and helpers.
 
-`new Child(args)` checks the constructor and emits `<CONTRACT:Child(<args>)>`. Spending that artifact binds the placeholder to the child output key. A destination parameter is a `ScriptPubKey`. The output a transaction pays still carries the full script, `OP_1` plus the 32-byte program.
+`new Child(args)` checks the constructor and emits `<CONTRACT:Child(<args>)>`. The SDK exposes that placeholder as a `bytes32` parameter. When instantiating the parent, pass the child output's 32-byte witness program under the name on `program.params`. A destination parameter is a `ScriptPubKey`. The output a transaction pays still carries the full script, `OP_1` plus the 32-byte program.
 
 A contract instantiates itself, with no import, to continue state (`compiler/examples/fuji_safe`). Copy every field that must not change. A field omitted from `new` is not preserved.
 

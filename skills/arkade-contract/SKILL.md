@@ -52,7 +52,7 @@ import { Arkade, InMemoryContractRepository, networks } from "@arkade-os/sdk";
 
 const client = await Arkade.connect({
     service: {
-        serverUrl: "https://mutinynet.arkade.sh",
+        operatorUrl: "https://mutinynet.arkade.sh",
         emulatorUrl: "https://emulator.mutinynet.arkade.sh",
     },
     storage: {
