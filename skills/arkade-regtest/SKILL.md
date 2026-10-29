@@ -23,7 +23,7 @@ node regtest/regtest.mjs start --env .env.regtest --profile ark --profile emulat
 
 `node regtest/regtest.mjs start` with no profile flag brings up the full stack. A contract test needs `ark` and the emulator, as in the clone command above.
 
-Stop with `node regtest/regtest.mjs stop` (volumes stay). Wipe with `node regtest/regtest.mjs clean`. The SDK checkout's `pnpm run regtest:*:ts-sdk` scripts call this same CLI. Use them only when the working tree is that checkout.
+Stop with `node regtest/regtest.mjs stop` (volumes stay). Wipe with `node regtest/regtest.mjs clean`. The SDK repository's `pnpm run regtest:*` scripts call this same CLI. Use them only when the working tree is that repository.
 
 `AUTOMINE_INTERVAL=0` has to be loaded at `start`, as in the command above. The CLI reads `--env <path>` when you pass it, and otherwise the clone's parent `.env.regtest` or `regtest/.env`. A value already in the environment wins over those files. The default auto-miner (one block every 600 seconds) moves block-denominated expiry and sweeps under a running test. Mine with `node regtest/regtest.mjs mine [n]`.
 
@@ -45,18 +45,18 @@ Offchain, the stack's `ark` client sends sats to an Arkade address. The password
 docker exec arkd ark send --to <address> --amount 20000 --password secret
 ```
 
-The SDK checkout has the same commands in `vendor/ts-sdk/packages/ts-sdk/test/e2e/utils.ts` (`faucetOnchain`, `faucetOffchain`, `mineBlocks`, `beforeEachFaucet`). Copy what this test needs to the bottom of its own file. Do not import that module. `beforeEachFaucet` redeems a fresh note because spent rounds leave notes the balance still shows and `ark send` cannot spend:
+Copy the funding commands this test needs to the bottom of its own file. Do not import the SDK repository's e2e module. A fresh note is redeemed because spent rounds leave notes the balance still shows and `ark send` cannot spend:
 
 ```bash
 docker exec arkd arkd note --amount 200000
 docker exec arkd ark redeem-notes -n <note> --password secret
 ```
 
-Run this project's one end-to-end file against the stack you just started. The SDK checkout's `pnpm run test:integration:ts-sdk` is that repo's own suite, not this project's test.
+Run this project's one end-to-end file against the stack you just started. The SDK repository's integration suite is that repo's own suite, not this project's test.
 
 ## Issue an asset
 
-Fund an offchain wallet first, then `wallet.assetManager.issue({ amount })`. Skip this when the contract under test locks only sats. The result's `assetId` is genesis txid plus group index; `AssetId.fromString` splits it into the `bytes32` and `int` a constructor stores.
+Fund an offchain wallet first, then `wallet.assetManager.issue({ amount })`. Skip this when the contract under test locks only sats. The result's `assetId` is genesis txid plus group index. `AssetId.fromString` gives `txid` and `groupIndex`. Pass those under the constructor's `bytes32` and `int` names. A parameter of type `AssetId` is `name.txid` and `name.gidx`.
 
 A control asset is an issuance of amount `1n`. A later `issue({ amount, controlAssetId })` mints under that control. Poll `getVtxos()` until the amount is present. The indexer trails a settle and a mine; `waitFor` on the vtxo. When a locktime must still be immature, read Bitcoin Core with `node regtest/regtest.mjs rpc getblockcount`. An Esplora tip lags that height.
 
@@ -70,7 +70,7 @@ One of those steps sends sats to the contract address and fails if the UI counts
 
 Virtual txids are not on Esplora. Assert through the indexer. Mine, then ask Esplora, only for an unrolled exit.
 
-A refused emulator signature is a key mismatch until `hex.encode(client.emulatorKey)` differs from the pubkey the emulator serves. Compare those before changing the contract.
+A refused emulator signature is a key mismatch when `hex.encode(client.emulatorKey)` differs from the `signerPubkey` the emulator serves at `/v1/info`. `hex` is from `@scure/base`. `client.emulatorKey` is 33 bytes, and `signerPubkey` is the hex string. Compare those before changing the contract.
 
 If the stack is down, stop. A failing spend will not explain a down arkd. `curl -sf http://localhost:7070/v1/info` and, when the contract has a covenant, the emulator on port 7073.
 
