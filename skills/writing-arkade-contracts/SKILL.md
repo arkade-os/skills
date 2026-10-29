@@ -17,7 +17,9 @@ This skill is used from a fresh project. The compiler is not already checked out
 git clone --depth 1 https://github.com/arkade-os/compiler.git compiler
 ```
 
-Ignore `compiler/`. `arkadec` is that checkout. Commit the `.ark` file, the artifact, and the `covenant-viz` README story in one commit. Leave the compiler checkout untracked. Paths below are inside the clone.
+Ignore `compiler/`. `arkadec` is that checkout. The `v0.1.0-test` release still compiles the removed `.scriptPubKey` accessor. This checkout compares `.script`, a `ScriptPubKey`, and the SDK 0.5 loader reads that artifact. Commit the `.ark` file, the artifact, and the `covenant-viz` README story in one commit. Leave the compiler checkout untracked. Paths below are inside the clone.
+
+A file may open with `pragma arkade ^0.1.0;`. The contracts in `compiler/examples/` do.
 
 Run `arkade-product` first. This file records those choices. It does not invent them.
 
@@ -31,13 +33,13 @@ A leaf that is the receiver's signature names their key on the script they took 
 function finalize() {
   require(tx.numOutputs == 2, "two outputs");
   require(tx.outputs[0].value >= userAmount, "user");
-  require(tx.outputs[0].scriptPubKey == userScript, "user");
+  require(tx.outputs[0].script == userScript, "user");
   require(tx.outputs[1].value >= committedAmount, "committed");
-  require(tx.outputs[1].scriptPubKey == committedScript, "committed");
+  require(tx.outputs[1].script == committedScript, "committed");
 }
 ```
 
-`userScript`, `committedScript`, `userAmount`, and `committedAmount` are constructor fields, agreed when the address was funded. When the order moves an asset, check `tx.outputs[i].assets.lookup` for that committed amount the same way. A change output is another counted output, with its script checked too. A `checkMultisig` of keys fixed in the constructor only says who may sign. It does not say where the value goes. Put the standing offer beside `compiler/examples/escrow/escrow.ark`, and start from `OptionIntent` when the receiver's script is the authorization.
+`userScript` and `committedScript` are constructor `ScriptPubKey`s. `userAmount` and `committedAmount` are constructor `int`s. All four are agreed when the address was funded. When the order moves an asset, check `tx.outputs[i].assets.lookup` for that committed amount the same way. A change output is another counted output, with its script checked too. A `checkMultisig` of keys fixed in the constructor only says who may sign. It does not say where the value goes. Put the standing offer beside `compiler/examples/escrow/escrow.ark`, and start from `OptionIntent` when the receiver's script is the authorization.
 
 If the output scripts are arguments of the function, its signer can pay themselves. Pin those scripts in the address that gets funded. That spend approves those outputs, or returns the coins to the funder.
 
@@ -54,8 +56,8 @@ A contract that continues itself can take the standing order as another input an
 ```ark
 function draw() {
   require(tx.numInputs == 2, "standing order");
-  require(tx.inputs[1].scriptPubKey != tx.input.current.scriptPubKey, "one order");
-  require(tx.outputs[0].scriptPubKey == new Vault(amount));
+  require(tx.inputs[1].script != tx.input.current.script, "one order");
+  require(tx.outputs[0].script == new Vault(amount));
   require(tx.outputs[0].value >= tx.input.current.value + tx.inputs[1].value);
 }
 ```
@@ -68,7 +70,7 @@ A payee written in the constructor is fixed when the coin is created. A staging 
 
 ```ark
 function postpone() {
-  require(tx.outputs[0].scriptPubKey == new Staging(amount));
+  require(tx.outputs[0].script == new Staging(amount));
   require(tx.outputs[0].value >= tx.input.current.value);
 }
 ```
@@ -109,7 +111,7 @@ cargo run --manifest-path compiler/Cargo.toml -- path/to/contract.ark -o contrac
 - Put committed state in constructor parameters and per-spend data in function parameters. Declare those parameters in source order. A covenant witness is that list reversed; a tapscript witness follows the tapscript parameter list.
 - Constructor parameters are placeholders until instantiation, then constants in the script. Spend paths assume the agreed values. There is no constructor hook, so a domain check inside a spend does not run at compile time and does not see a different value than the one already committed.
 - Propagate immutable constructor fields unchanged when recreating a state-bearing contract.
-- Construct the next state with `new ContractName(...)` and assert its output script and minimum value. `tx.outputs[i].scriptPubKey` is the 32-byte Taproot witness program, not the `5120…` script. `new` compiles to that same output key.
+- Construct the next state with `new ContractName(...)` and assert its output script and minimum value. `tx.outputs[i].script` is a `ScriptPubKey` with `program` and `version`, not the `5120…` script a transaction pays. `new` returns that struct at witness version 1, so the comparison checks the program and the version. Bind the script and read `.program` only when the version must stay out of the check. `this.activeBytecode` is the same struct. A destination parameter is a `ScriptPubKey`, not a `bytes32`.
 - Use covenant `function name(...) { ... }` bodies for introspection and state-transition rules.
 - Use `function name(...) tapscript { ... }` only for L1 authorization, hashes, and timelocks supported by `compiler/src/compiler/tapscript.rs`.
 
@@ -172,6 +174,7 @@ Assume signed 64-bit intermediates and truncating integer division.
 ## Respect grammar limits
 
 - `&&` and `||` are available in covenant bodies and short-circuit; ternary expressions are not.
+- `==` and `!=` on `int`, `bool`, and `AssetGroup` compare numbers. A witness number that is not minimally encoded fails the spend.
 - Bind a computed array index to an identifier before indexing; array indices accept identifiers or number literals.
 - Use assignments as statements, not expressions.
 - Keep `require` messages short and descriptive.
@@ -199,15 +202,15 @@ Most of `compiler/examples/stability/` is commented out and predates the current
 
 ## Compile an artifact
 
-The artifact is the contract the SDK spends. Commit it when an application loads it. Do not hand-edit it.
+The artifact is the contract the SDK 0.5 loader spends. Commit it when an application loads it. Do not hand-edit it.
 
 ```bash
 cargo run --manifest-path compiler/Cargo.toml -- path/to/contract.ark -o contract.artifact.json
 ```
 
-`compile_file` loads the entry and its relative imports. `compile_sources(entry, files)` compiles an in-memory project. The JSON shape is `contractName`, `constructorInputs`, `structs`, `functions` (spend groups of `{ name, arkade?, leaves }`), `source`, `compiler`, `warnings`, and `updatedAt`. Ignore `updatedAt` when diffing. `source.files` is every imported file, verbatim; recompile that bundle with the same compiler version.
+`compile_file` loads the entry and its relative imports. `compile_sources(entry, files)` compiles an in-memory project. The JSON shape is `formatVersion` (1), `contractName`, `constructorInputs`, `structs`, `functions` (spend groups of `{ name, arkade?, leaves }`), `source`, `compiler`, `fingerprint`, and `updatedAt`. Warnings are printed and are not in the artifact. Ignore `updatedAt` when diffing. `fingerprint` is the sha256 of the JSON before `fingerprint` and `updatedAt` are added. `source.files` is every imported file, verbatim; recompile that bundle with the same compiler version.
 
-`constructorInputs` and `arkade.inputs` are the source ABI. Clients expand arrays and structs into scalar leaves and serialize covenant inputs in reverse `arkade.inputs` order. After instantiation the only remaining placeholders are `<VTXO:Contract(...)>` tokens.
+`constructorInputs` and `arkade.inputs` are the source ABI. Clients expand arrays and structs into scalar leaves. A `ScriptPubKey` expands to `program` (`bytes`) then `version` (`int`). An `AssetId` expands to `txid` (`bytes32`) then `gidx` (`int`). Covenant inputs are serialized in reverse `arkade.inputs` order. After instantiation the remaining placeholders are `<CONTRACT:Contract(<args>)>` tokens. The SDK turns each one into a `bytes32` parameter.
 
 `compiler/playground/contracts.js` and `compiler/playground/pkg/` are generated. A playground folder is an entry in the `projects` object in `compiler/playground/main.js`. Regenerate the contract bundle with `compiler/playground/generate_contracts.sh`. `compiler/examples/**/*.json` is compiler output and is ignored.
 
@@ -215,7 +218,7 @@ cargo run --manifest-path compiler/Cargo.toml -- path/to/contract.ark -o contrac
 
 One contract or library per file. `import "./other.ark";` is relative to the importing file, direct-import scope, depth 128, no cycles. The entry contract owns the artifact's spend groups. Imported files supply constructors, constants, and helpers.
 
-`new Child(args)` checks the constructor and emits `<VTXO:Child(...)>`. The runtime resolves that to the child Taproot script. A `bytes32` compared with `scriptPubKey` is the 32-byte witness program. The output a transaction pays still carries the full script, `OP_1` plus those 32 bytes.
+`new Child(args)` checks the constructor and emits `<CONTRACT:Child(<args>)>`. Spending that artifact binds the placeholder to the child output key. A destination parameter is a `ScriptPubKey`. The output a transaction pays still carries the full script, `OP_1` plus the 32-byte program.
 
 A contract instantiates itself, with no import, to continue state (`compiler/examples/fuji_safe`). Copy every field that must not change. A field omitted from `new` is not preserved.
 
@@ -224,6 +227,8 @@ A contract instantiates itself, with no import, to continue state (`compiler/exa
 Two places hold state, and they upgrade differently.
 
 Script state is the constructor. Continuing it is `new SameContract(...)` on the output, copying every field that must stay and passing a new value only for a field this function is allowed to change. A changed constructor is a different script. Anything that pinned the old script stops matching.
+
+`require(this.tunnel(0))` keeps this input's script program and version, its bitcoin value, and its assets on that output. The explicit form is `this.tunnel(0, {script: true, value: true, assets: false})`. An excluded asset list is the third argument. Tunneling does not name a different contract. A field that must change is still `new`.
 
 A reading that must move without changing the script is an asset amount. The function continues the same constructor, then sets `tx.outputs[0].assets.lookup(...)` to the new amount. A clock is a second asset that the function requires not to move backwards. A passthrough function is the same continuation with each watched amount `output >= input`, so another contract can spend this coin in the same transaction without draining it. `compiler/tests/features/beacon.rs` is that pattern for an oracle. `compiler/examples/token_vault` is the control asset, amount 1, that has to be present on the way in and on the way out.
 
