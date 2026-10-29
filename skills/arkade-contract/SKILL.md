@@ -70,7 +70,7 @@ Leave `identity` off when this session only watches or spends leaves that do not
 
 A `Wallet` already owns a manager and both repositories. Pass `contractManager: await wallet.getContractManager()` and omit `storage`. Passing both throws. Do not construct a second manager beside the wallet and write the same scripts through both.
 
-`client.serverKey` is the operator key from `getInfo`. It is part of the taproot tree. It is not a key named in the contract. The emulator is required only when a path actually spends a covenant. `client.emulatorKey` comes from the SDK's network pin, not from the emulator's `/v1/info`. Compare the two when a claim is refused.
+`client.serverKey` is the operator key from `getInfo`. It is part of the taproot tree. It is not a key named in the contract. The emulator is required only when a path actually spends a covenant. `client.emulatorKey` is the 33-byte key from the SDK's network pin, not from the emulator's `/v1/info`. Encode it with `hex` from `@scure/base` and compare that string to the emulator's `signerPubkey` when a claim is refused.
 
 ## Constructor arguments
 
