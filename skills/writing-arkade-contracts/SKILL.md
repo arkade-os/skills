@@ -21,15 +21,15 @@ Ignore `compiler/`. `arkadec` is that checkout. This checkout compares `.script`
 
 ## Arkade options artifacts
 
-The contracts in [arkade-options](https://github.com/ArkLabsHQ/arkade-options) use `.scriptPubKey`. Reproduce a committed artifact with the compiler commit in that repo's `contracts/compiler.pin.json`. Check `fingerprint` when the artifact has one. Ignore `updatedAt`. `compiler.version` is `0.1.0` on every one of these.
+The contracts in [arkade-options](https://github.com/ArkLabsHQ/arkade-options) use `.scriptPubKey`. Reproduce a committed artifact with the compiler commit in this table. Check `fingerprint` when the artifact has one. Ignore `updatedAt`. `compiler.version` is `0.1.0` on every one of these.
 
 | Artifacts | Commit | Toolchain |
 | --- | --- | --- |
-| `option_vault`, `attestation_beacon` | `0fb04ac7e83f2b886a0c31beb3fa68858103f4ee` | GitHub release `v0.1.0-test`, npm `@arkade-os/compiler@0.1.0-options` |
-| `option_intent`, `non_interactive_swap` | `1e986aa3c4440e8ab73e69179a124dd83a4c3703` | that commit, with the lockfile in `contracts/toolchains/` |
-| `standing_leg`, `standing_vault` | `890987ea0ab580667839c758cdef4d5f805d344a` | that commit, with the lockfile in `contracts/toolchains/` |
+| `option_vault`, `attestation_beacon` | `0fb04ac7e83f2b886a0c31beb3fa68858103f4ee` | GitHub release `v0.1.0-test` |
+| `option_intent`, `non_interactive_swap` | `1e986aa3c4440e8ab73e69179a124dd83a4c3703` | that commit, locked by `toolchains/1e986aa3c4440e8ab73e69179a124dd83a4c3703/Cargo.lock` in this repo |
+| `standing_leg`, `standing_vault` | `890987ea0ab580667839c758cdef4d5f805d344a` | that commit, locked by `toolchains/890987ea0ab580667839c758cdef4d5f805d344a/Cargo.lock` in this repo |
 
-The vault and beacon name the compiler `arkadec` and set `options.optimize` to true. `v0.1.0-test` is that binary. `@arkade-os/compiler@0.1.0-options` reports `version()` `0.1.0` and reproduces those fingerprints. A new contract uses this checkout.
+The vault and beacon name the compiler `arkadec` and set `options.optimize` to true. The `v0.1.0-test` release binary reproduces their `fingerprint`. `@arkade-os/compiler@0.1.0-rc.1` is a later package: it compiles `.script` as a `ScriptPubKey`. A new contract uses this checkout. From this skills repo, `node scripts/verify-options-artifacts.mjs` rebuilds every committed arkade-options artifact and checks it.
 
 A file may open with `pragma arkade ^0.1.0;`. The contracts in `compiler/examples/` do.
 

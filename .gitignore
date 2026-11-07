@@ -35,3 +35,6 @@ npm-debug.log*
 compiler/
 vendor/
 regtest/
+
+# Compiler checkouts and release binaries for scripts/verify-options-artifacts.mjs
+.toolchains/

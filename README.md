@@ -12,7 +12,7 @@ npx skills add arkade-os/skills
 
 1. **Product.** Follow `arkade-product`. A coin is not a balance. A `require` is not authorization. Pin the outputs in the address that gets funded. A standing order completes later without the funder. A token burn is the right, in place of `checkSig`.
 
-2. **Write the contract.** Follow `writing-arkade-contracts`. It clones [arkade-os/compiler](https://github.com/arkade-os/compiler) and runs `arkadec`. Commit the `.ark` file and the artifact with the picture from the next step. Leave `compiler/` untracked. The arkade-options artifacts pin their compiler commits in `contracts/compiler.pin.json`; the vault and beacon fingerprints reproduce from the `v0.1.0-test` release.
+2. **Write the contract.** Follow `writing-arkade-contracts`. It clones [arkade-os/compiler](https://github.com/arkade-os/compiler) and runs `arkadec`. Commit the `.ark` file and the artifact with the picture from the next step. Leave `compiler/` untracked. The arkade-options vault and beacon fingerprints reproduce from the compiler release `v0.1.0-test`. `node scripts/verify-options-artifacts.mjs` checks every committed artifact in that repo.
 
 3. **covenant-viz.** Follow `covenant-viz`. Regenerate the short README story in mermaid in that same commit. The pictures, in order, are the coin the person sends, the direct send beside the continuation, the rejected transaction, and who signs versus who can build the server plus the function-tweaked emulator. A `require` is not authorization.
 
