@@ -1,0 +1,27 @@
+name: Options artifacts
+
+on:
+  pull_request:
+    paths:
+      - scripts/verify-options-artifacts.mjs
+      - options-compilers.json
+      - toolchains/**
+      - skills/writing-arkade-contracts/**
+  workflow_dispatch:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Reproduce the arkade-options artifacts
+        run: node scripts/verify-options-artifacts.mjs

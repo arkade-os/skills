@@ -1,0 +1,215 @@
+From 4fd2cc8c25b99125f13d4fa06b66f68051944e68 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 7 Nov 2026 19:38:31 +0000
+Subject: [PATCH] Publish compiler 0.1.0 for the arkade-options artifacts.
+
+The vault and beacon fingerprints come from this tree, already released as
+v0.1.0-test. Tag v0.1.0-options packs the same compiler as
+@arkade-os/compiler@0.1.0-options on the options dist-tag. version() stays
+0.1.0, the compiler.version stored on those artifacts.
+---
+ .github/workflows/release.yml | 63 +++++++++++++++++++++++++++++++++++
+ npm/.gitignore                |  1 +
+ npm/README.md                 | 18 ++++++++++
+ npm/build.mjs                 | 61 +++++++++++++++++++++++++++++++++
+ npm/index.js                  | 13 ++++++++
+ 5 files changed, 156 insertions(+)
+ create mode 100644 npm/.gitignore
+ create mode 100644 npm/README.md
+ create mode 100644 npm/build.mjs
+ create mode 100644 npm/index.js
+
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+index cafd0c1..1b97a9c 100644
+--- a/.github/workflows/release.yml
++++ b/.github/workflows/release.yml
+@@ -98,6 +98,69 @@ jobs:
+           [[ "$GITHUB_REF_NAME" == *-* ]] && prerelease=--prerelease
+           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes $prerelease *
+ 
++  # Same compiler as v0.1.0-test. The npm version is 0.1.0-options so this
++  # publish leaves the latest and next dist-tags on the current compiler.
++  # version() inside the package still reports 0.1.0, matching artifact.compiler.
++  publish-options-npm:
++    needs: verify
++    if: github.ref_name == 'v0.1.0-options'
++    runs-on: ubuntu-latest
++    environment: npm
++    permissions:
++      contents: read
++      id-token: write
++    steps:
++      - uses: actions/checkout@v7
++        with:
++          persist-credentials: false
++      - uses: dtolnay/rust-toolchain@stable
++        with:
++          targets: wasm32-unknown-unknown
++      - uses: taiki-e/install-action@e407f7bafb71fd004bc5c2da3032e5470cbb6ef0 # v2.87.24
++        with:
++          tool: wasm-pack@0.15.0
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
++        with:
++          node-version: 24
++          registry-url: https://registry.npmjs.org
++      - name: Install an npm with trusted publishing
++        run: npm install -g npm@11.6.2
++      - name: Build the package
++        working-directory: npm
++        run: node build.mjs
++      - name: Fingerprints match the committed arkade-options artifacts
++        working-directory: npm/dist
++        run: |
++          set -euo pipefail
++          for name in option_vault attestation_beacon; do
++            curl -fsSL -o "$name.json" \
++              "https://raw.githubusercontent.com/ArkLabsHQ/arkade-options/29dcc0fadee60ea461e5549f6c68271d31ed199e/contracts/$name.artifact.json"
++          done
++          node << 'JS'
++          const { compile } = require("./index.js");
++          const fs = require("fs");
++          for (const name of ["option_vault", "attestation_beacon"]) {
++            const committed = JSON.parse(fs.readFileSync(`${name}.json`, "utf8"));
++            const { artifact } = compile({
++              entry: committed.source.entry,
++              files: committed.source.files,
++            });
++            if (artifact.fingerprint !== committed.fingerprint) {
++              console.error(name, artifact.fingerprint, committed.fingerprint);
++              process.exit(1);
++            }
++            console.log(name, artifact.fingerprint);
++          }
++          JS
++      - name: Publish package
++        working-directory: npm/dist
++        run: |
++          if npm view "@arkade-os/compiler@0.1.0-options" version > /dev/null 2>&1; then
++            echo "@arkade-os/compiler@0.1.0-options is already published"
++            exit 0
++          fi
++          npm publish --tag options --access public
++
+   publish:
+     needs: release
+     if: ${{ !contains(github.ref_name, '-') }}
+diff --git a/npm/.gitignore b/npm/.gitignore
+new file mode 100644
+index 0000000..849ddff
+--- /dev/null
++++ b/npm/.gitignore
+@@ -0,0 +1 @@
++dist/
+diff --git a/npm/README.md b/npm/README.md
+new file mode 100644
+index 0000000..5acb2ed
+--- /dev/null
++++ b/npm/README.md
+@@ -0,0 +1,18 @@
++# @arkade-os/compiler@0.1.0-options
++
++Node build of compiler commit `0fb04ac7e83f2b886a0c31beb3fa68858103f4ee`, the tree tagged [`v0.1.0-test`](https://github.com/arkade-os/compiler/releases/tag/v0.1.0-test). `version()` returns `0.1.0`. That is the `compiler.version` in the arkade-options vault and beacon artifacts, and with the default `{ optimize: true }` those artifacts reproduce their `fingerprint`.
++
++The npm version is `0.1.0-options`, published on the `options` dist-tag. `@arkade-os/compiler@latest` and `@next` stay on the current compiler.
++
++```js
++const { compile, version } = require("@arkade-os/compiler");
++
++const { artifact } = compile({
++    entry: "option_vault.ark",
++    files: { "option_vault.ark": source },
++});
++
++console.log(version(), artifact.fingerprint);
++```
++
++`compile(input, options)` reads `input.entry` and `input.files`. `options.optimize` defaults to `true`. The result is `{ artifact }`.
+diff --git a/npm/build.mjs b/npm/build.mjs
+new file mode 100644
+index 0000000..2d1e33a
+--- /dev/null
++++ b/npm/build.mjs
+@@ -0,0 +1,61 @@
++import { execFileSync } from "node:child_process";
++import { cpSync, rmSync, writeFileSync } from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const here = path.dirname(fileURLToPath(import.meta.url));
++const root = path.resolve(here, "..");
++const dist = path.join(here, "dist");
++
++rmSync(dist, { recursive: true, force: true });
++execFileSync(
++    "wasm-pack",
++    [
++        "build",
++        root,
++        "--release",
++        "--target",
++        "nodejs",
++        "--out-dir",
++        dist,
++        "--",
++        "--locked",
++        "--features",
++        "wasm",
++    ],
++    { stdio: "inherit" },
++);
++
++for (const file of [".gitignore", "package.json", "README.md", "LICENSE"]) {
++    rmSync(path.join(dist, file), { force: true });
++}
++
++cpSync(path.join(here, "index.js"), path.join(dist, "index.js"));
++cpSync(path.join(root, "LICENSE"), path.join(dist, "LICENSE"));
++cpSync(path.join(here, "README.md"), path.join(dist, "README.md"));
++
++const manifest = {
++    name: "@arkade-os/compiler",
++    version: "0.1.0-options",
++    description:
++        "Arkade compiler 0.1.0 that reproduces the arkade-options .scriptPubKey artifacts.",
++    license: "MIT",
++    repository: {
++        type: "git",
++        url: "https://github.com/arkade-os/compiler.git",
++        directory: "npm",
++    },
++    engines: { node: ">=22.12.0" },
++    main: "./index.js",
++    files: [
++        "index.js",
++        "arkade_compiler.js",
++        "arkade_compiler_bg.wasm",
++        "arkade_compiler.d.ts",
++        "LICENSE",
++        "README.md",
++    ],
++    publishConfig: { access: "public" },
++};
++
++writeFileSync(path.join(dist, "package.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+diff --git a/npm/index.js b/npm/index.js
+new file mode 100644
+index 0000000..40eff43
+--- /dev/null
++++ b/npm/index.js
+@@ -0,0 +1,13 @@
++const { compile_sources, version } = require("./arkade_compiler.js");
++
++// `optimize` defaults to true, which is what the committed arkade-options
++// artifacts record under compiler.options.
++function compile(input, options = {}) {
++    const optimize = options.optimize !== false;
++    const artifact = JSON.parse(
++        compile_sources(input.entry, JSON.stringify(input.files), optimize),
++    );
++    return { artifact };
++}
++
++module.exports = { compile, version };
+-- 
+2.43.0
+

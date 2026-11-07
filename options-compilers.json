@@ -1,0 +1,23 @@
+{
+  "repository": "https://github.com/arkade-os/compiler",
+  "options": "https://github.com/ArkLabsHQ/arkade-options.git",
+  "compilers": {
+    "0fb04ac7e83f2b886a0c31beb3fa68858103f4ee": {
+      "release": "v0.1.0-test"
+    },
+    "1e986aa3c4440e8ab73e69179a124dd83a4c3703": {
+      "lock": "toolchains/1e986aa3c4440e8ab73e69179a124dd83a4c3703/Cargo.lock"
+    },
+    "890987ea0ab580667839c758cdef4d5f805d344a": {
+      "lock": "toolchains/890987ea0ab580667839c758cdef4d5f805d344a/Cargo.lock"
+    }
+  },
+  "artifacts": {
+    "option_vault.artifact.json": "0fb04ac7e83f2b886a0c31beb3fa68858103f4ee",
+    "attestation_beacon.artifact.json": "0fb04ac7e83f2b886a0c31beb3fa68858103f4ee",
+    "option_intent.artifact.json": "1e986aa3c4440e8ab73e69179a124dd83a4c3703",
+    "non_interactive_swap.artifact.json": "1e986aa3c4440e8ab73e69179a124dd83a4c3703",
+    "standing_leg.artifact.json": "890987ea0ab580667839c758cdef4d5f805d344a",
+    "standing_vault.artifact.json": "890987ea0ab580667839c758cdef4d5f805d344a"
+  }
+}
