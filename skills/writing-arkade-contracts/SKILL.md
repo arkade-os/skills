@@ -17,7 +17,7 @@ This skill is used from a fresh project. The compiler is not already checked out
 git clone --depth 1 https://github.com/arkade-os/compiler.git compiler
 ```
 
-Ignore `compiler/`. `arkadec` is that checkout. The `v0.1.0-test` release still compiles the removed `.scriptPubKey` accessor. This checkout compares `.script`, a `ScriptPubKey`, and the SDK 0.5 loader reads that artifact. Commit the `.ark` file, the artifact, and the `covenant-viz` README story in one commit. Leave the compiler checkout untracked. Paths below are inside the clone.
+Ignore `compiler/`. `arkadec` is that checkout. The `v0.1.0-test` release still compiles the removed `.scriptPubKey` accessor. This checkout compares `.script`, a `ScriptPubKey`, and the SDK 0.5 loader reads that artifact. Commit the `.ark` file, the artifact, and the `covenant-viz` README in one commit. Leave the compiler checkout untracked. Paths below are inside the clone.
 
 A file may open with `pragma arkade ^0.1.0;`. The contracts in `compiler/examples/` do.
 
@@ -244,4 +244,4 @@ An attestation is a signature over a message the contract rebuilds in the signer
 4. Do not add a unit test. The proof is the `arkade-regtest` file: the contract's real life, and a direct send that the UI must not count as the contract's position. Helpers in that file go at the end.
 5. Run `compiler/playground/build.sh` when a playground example changes.
 
-`arkade-product` comes before this skill. `covenant-viz` redraws the README story in the same commit as the `.ark` file. Spending that artifact, showing the one next action from that picture, and running regtest are `arkade-contract`, `arkade-product-ui`, and `arkade-regtest`.
+`arkade-product` comes before this skill. `covenant-viz` redraws the README in the same commit as the `.ark` file. Spending that artifact, showing the one next action from that transaction, and running regtest are `arkade-contract`, `arkade-product-ui`, and `arkade-regtest`.
