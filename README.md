@@ -12,13 +12,13 @@ npx skills add arkade-os/skills
 
 1. **Product.** Follow `arkade-product`. A coin is not a balance. A `require` is not authorization. Pin the outputs in the address that gets funded. A standing order completes later without the funder. A token burn is the right, in place of `checkSig`.
 
-2. **Write the contract.** Follow `writing-arkade-contracts`. It clones [arkade-os/compiler](https://github.com/arkade-os/compiler) and runs `arkadec`. Commit the `.ark` file and the artifact with the picture from the next step. Leave `compiler/` untracked.
+2. **Write the contract.** Follow `writing-arkade-contracts`. It clones [arkade-os/compiler](https://github.com/arkade-os/compiler) and runs `arkadec`. Commit the `.ark` file and the artifact with the README from the next step. Leave `compiler/` untracked.
 
-3. **covenant-viz.** Follow `covenant-viz`. Regenerate the short README story in mermaid in that same commit. The pictures, in order, are the coin the person sends, the direct send beside the continuation, the rejected transaction, and who signs versus who can build the server plus the function-tweaked emulator. A `require` is not authorization.
+3. **covenant-viz.** Follow `covenant-viz`. Regenerate the README in that same commit: the coins, each contract, each function as a signature and a short list, and one mermaid transaction per action. Inputs, the action, then outputs. A dotted edge is a same-index check the script writes. A `require` is not authorization. A direct send to an address is a second coin.
 
 4. **Spend.** Follow `arkade-contract`. Mutinynet is the default session: `https://mutinynet.arkade.sh`, `https://emulator.mutinynet.arkade.sh`, `https://mempool.mutinynet.arkade.sh/api`. The page subscribes. `ContractManager` writes. The screen reads the repository after `vtxo_received` and `vtxo_spent`. Leave `vendor/` untracked.
 
-5. **Screen.** Follow `arkade-product-ui`. The screen follows that picture and shows one next action. It does not invent a second protocol.
+5. **Screen.** Follow `arkade-product-ui`. The screen follows the transaction that README draws for the current coin and shows one next action. It does not invent a second protocol.
 
 6. **Regtest.** Follow `arkade-regtest`. It clones [ArkLabsHQ/arkade-regtest](https://github.com/ArkLabsHQ/arkade-regtest) and starts the stack:
 
