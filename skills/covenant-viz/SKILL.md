@@ -49,7 +49,7 @@ One `###` per contract. Each function is a signature line and a short list. Do n
 
 The first sentence says which transaction this runs in and who signs.
 
-- A covenant function with no matching tapscript is the server plus the function-tweaked emulator. The operator cosigns. Anyone who can build that transaction can pass the `require`. Say when a person does not sign.
+- A covenant function with no matching tapscript is the server plus the function-tweaked emulator. The operator cosigns. Anyone who can build that transaction can pass the `require`. When the `require` checks a signature, that signature is part of the transaction. `complete` checks `checkSigFromStack` on the oracle. The oracle attests the message. Say when a person does not sign.
 - A tapscript names the keys on the leaf. The receiver spending the script they named when they took the coins is the signature, as `OptionIntent` does.
 - One owner: `exit` is that key after `older(serverExitDelay)`, on the published output.
 - PULSE: the contract does not name the set. The leaf is `older(serverExitDelay)` and `checkSig(pulseSig, pulseKey)`. `pulseSig` is already on the lattice root. `pulseKey` is deleted after that tree is signed. Publishing the path from the batch output to this coin, then that owner's branch, is that owner's exit. Write PULSE only when the contract is that shape.
@@ -97,7 +97,7 @@ flowchart LR
 ```
 
 - Stadium `([...])` for a coin a contract names. Rectangle `["..."]` for a person's unbound coins and for change. Circle `((...))` for the transaction. The circle is the action, two lines at most.
-- A funding picture is rectangles for `in 0…` and for change, a stadium for the new coin, and no dotted edge. Change says `when there is any`. A covenant picture draws a change output only when the function counts one.
+- A funding picture is rectangles for `in 0…` and for change, a stadium for the new coin, and no dotted edge. Change says `when there is any`. A covenant picture draws every output the function counts. When the spend is not exact and the function does not pin `tx.numOutputs`, draw the change `.change(script)` adds as a rectangle labeled unconstrained, with no dotted edge.
 - Labels are `in N · role` and `out N · role`. A run of the same unbound inputs is `in 0…`. The function is the next line of a contract input. Break a label with `<br/>`. The middle dot is `·`.
 - A dotted edge only when that input's script checks that output. The label names the function and `same index`, or the check in the words the script writes. Omit the edge when the script does not write that check.
 - `entry` (`#f45d3c`, white text) is a coin a person spends into this transaction. When no person is paying in, `entry` is the subject input of the heading.
@@ -105,7 +105,7 @@ flowchart LR
 - `muted` is a continuation of an input, change, and an input that is context for the subject.
 - Node ids stay short (`I0`, `TX`, `O0`). The label carries the index.
 - A presigned lattice names the pool output, the lattice root, and one slot per member. It does not invent indexes the script does not have.
-- The refused picture uses this same shape. The circle says `rejected` and the `require` that fails: the deadline already passed, a second copy of the same script, an output the function does not name. The prose says the picture may fail to balance. Leave the failing outputs as they are.
+- The refused picture uses this same shape. The circle says `rejected` and the `require` that fails: the deadline already passed, a second copy of the same script, or a pinned output whose script or amount fails. An output the script does not pin stays unconstrained. The prose says the picture may fail to balance. Leave the failing outputs as they are.
 
 ## Amounts
 
@@ -119,7 +119,7 @@ A formula the file writes goes in the opening. A price-function section is a fur
 
 Learn the page from [solver-vault](https://github.com/ArkLabsHQ/solver-vault#transactions). Learn what one contract draws from escrow and one standing offer, then write the contract in this commit.
 
-Escrow is `compiler/examples/escrow/escrow.ark`. Party A sends the coin. `complete` pays `partyBScript` at least `amount`, and a surplus above 330 to `partyAScript`. `cancel` returns the coin after `checkTime(timeoutAt)`. The oracle signs the committed message. `complete` and `cancel` are the server plus the function-tweaked emulator. `unilateral` is party A and party B after `older(serverExitDelay)`. The transactions are the funding, `complete`, `cancel`, the exit, and one rejected spend.
+Escrow is `compiler/examples/escrow/escrow.ark`. Party A sends the coin. `complete` pays `partyBScript` at least `amount`, and a surplus above 330 to `partyAScript`. `cancel` returns the coin after `checkTime(timeoutAt)`. The oracle signs the committed message, and `complete` checks `checkSigFromStack` on that signature. `complete` and `cancel` are the server plus the function-tweaked emulator. `unilateral` is party A and party B after `older(serverExitDelay)`. The transactions are the funding, `complete`, `cancel`, the exit, and one rejected spend.
 
 One standing offer is `compiler/examples/option/option_intent.ark`, or the pot. OptionIntent names `collateral`, `premium`, and `DUST` (330). The funder does not sign `finalize`. That spend takes this coin plus one input whose script is not this intent, and pays the scripts the constructor already named. The pot is the standing offer with no other amounts in the file: carrier 330, pot above it. Draw the one this contract is.
 
@@ -133,6 +133,6 @@ The interactive page is that options case. The control sets the public number th
 
 ## Check
 
-The README, the `.ark` file, and the artifact are in one commit. The order is opening, Contracts, Functions, Transactions. Every transaction picture has Inputs, the circle, and Outputs, the four classes, and the grey links. A dotted edge is a check the script writes. Every output the function checks is in the picture. Every satoshi amount is 330 or a literal in the `.ark` file. The opening says a direct send is a second coin, and no picture treats that send as the continuation. The rejected picture stays rejected, and it is last. Functions state that a `require` is not authorization, and a covenant with no tapscript is the server plus the function-tweaked emulator. There is no price-function section unless the script reads a public number, and no interactive page unless that number changes the payment.
+The README, the `.ark` file, and the artifact are in one commit. The order is opening, Contracts, Functions, Transactions. Every transaction picture has Inputs, the circle, and Outputs, the four classes, and the grey links. A dotted edge is a check the script writes. Every output the function checks is in the picture. A non-exact spend whose function does not pin `tx.numOutputs` shows the change `.change(script)` adds as unconstrained. Every satoshi amount is 330 or a literal in the `.ark` file. The opening says a direct send is a second coin, and no picture treats that send as the continuation. The rejected picture stays rejected, and it is last. Functions state that a `require` is not authorization, and a covenant with no tapscript is the server plus the function-tweaked emulator. There is no price-function section unless the script reads a public number, and no interactive page unless that number changes the payment.
 
 Then spend the artifact with `arkade-contract`. The screen follows the transaction this README draws for the current coin and shows one next action. It does not invent a second protocol.

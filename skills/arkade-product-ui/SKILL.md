@@ -20,7 +20,7 @@ Polish and motion come from [emilkowalski/skills](https://github.com/emilkowalsk
 
 ## Match the artifact
 
-The one next action is the operation the current coin's transaction allows. Funding the standing address pays that address. It is not a function on `contract.functions`. A covenant spend is one function on `contract.functions`, named as in the `.ark` file, and only when this user can satisfy it and that transaction draws that spend. Constructor fields that pin the outputs were collected when the address was funded. That spend sends the witnesses and outputs that function checks, and nothing else. A payment, a witness, or a second contract that transaction does not draw is a second protocol. Leave it out.
+The one next action is the operation the current coin's transaction allows. Funding the standing address pays that address. It is not a function on `contract.functions`. A covenant spend is one function on `contract.functions`, named as in the `.ark` file, and only when this user can satisfy it and that transaction draws that spend. Constructor fields that pin the outputs were collected when the address was funded. That spend sends the witnesses and outputs that function checks. When the spend is not exact and the function does not pin `tx.numOutputs`, it also sends the change `.change(script)` adds. It sends nothing else. A payment, a witness, or a second contract that transaction does not draw is a second protocol. Leave it out.
 
 A direct send creates a second coin beside the one the contract continues. The screen must say which of those two the user just did. Only a spend that pays the continuation script changes the position the contract tracks.
 

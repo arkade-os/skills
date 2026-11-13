@@ -10,7 +10,7 @@ description: >
 
 # Spend any Arkade contract
 
-This skill is used from a fresh project. The artifact is produced by the `writing-arkade-contracts` skill (`arkadec` from a clone of [arkade-os/compiler](https://github.com/arkade-os/compiler)). `covenant-viz` has already drawn the transactions. This skill spends that committed JSON. The same steps cover any contract. Function names on `contract.functions` are the function names in the `.ark` file. Spend the outputs that function checks. If the transaction omitted one, regenerate the README. Do not add an output the function does not check.
+This skill is used from a fresh project. The artifact is produced by the `writing-arkade-contracts` skill (`arkadec` from a clone of [arkade-os/compiler](https://github.com/arkade-os/compiler)). `covenant-viz` has already drawn the transactions. This skill spends that committed JSON. The same steps cover any contract. Function names on `contract.functions` are the function names in the `.ark` file. Spend the outputs that function checks. If the transaction omitted one, regenerate the README. Do not add an output the function does not check. When the spend is not exact and the function does not pin `tx.numOutputs`, the change `.change(script)` adds is drawn unconstrained.
 
 Pull the SDK. It is not already in this project.
 
