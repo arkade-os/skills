@@ -90,6 +90,8 @@ function exercise() {
 
 No `checkSig` on that path. Spending the coin that held the token is the authorization. `rightTxid` and `rightGidx` are constructor fields naming that token. `compiler/examples/fuji_safe/fuji_safe.ark` pays a constructor-pinned burn script and still requires the borrower's signature. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance, and the issuer signs that path. Those are different burns: one spends a right, the other retires the mint.
 
+A tokenized vault omits the exit tapscript. Omitting that tapscript is the same as passing the NUMS point as `noExitKey`. Do not declare `noExitKey`.
+
 ## The anchor
 
 The first issuance leaves one unit of the control asset on the coin. A reissue cannot name the control asset, so that unit is the anchor the next issuance continues. `.withAsset()` moves a group that already exists. It cannot express a fresh issue.
@@ -131,6 +133,8 @@ function unilateral(signature ownerSig) tapscript {
 `serverExitDelay` is a reserved placeholder, the same kind as `server`. `older(serverExitDelay)` lowers to `<SERVER_EXIT_DELAY>`. It is not a constructor parameter. The caller does not pass an exit delay. The SDK fills that placeholder from the operator's `unilateralExitDelay`, the same way it fills `<SERVER_KEY>` from the operator key. For a different fixed delay, write `older(seconds(n))` with a literal or `int` constant. Take a constructor `int` only when the delay varies per instance; it is pushed raw, so the caller passes the BIP68 sequence.
 
 Keep `server` and `emulator` out of constructors and covenant bodies. Use them only as reserved key operands in tapscript signature checks. Declare the corresponding signature witnesses on author-written tapscripts. Keep `serverExitDelay` out of constructors, covenant bodies, and signature checks. Its only use is `older(serverExitDelay)`.
+
+A tokenized vault omits that unilateral tapscript. Omitting it is the same as passing the NUMS point as `noExitKey`. Do not declare `noExitKey`, and do not write the tapscript.
 
 Do not use the removed `options { ... }` syntax.
 
