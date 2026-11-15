@@ -90,7 +90,7 @@ function exercise() {
 
 No `checkSig` on that path. Spending the coin that held the token is the authorization. `rightTxid` and `rightGidx` are constructor fields naming that token. `compiler/examples/fuji_safe/fuji_safe.ark` pays a constructor-pinned burn script and still requires the borrower's signature. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance, and the issuer signs that path. Those are different burns: one spends a right, the other retires the mint.
 
-A tokenized vault omits the exit tapscript. Omitting that tapscript is the same as passing the NUMS point as `noExitKey`. Do not declare `noExitKey`.
+A tokenized vault omits the exit tapscript. Nobody can spend a path locked to the NUMS point, so omitting the tapscript is the same as passing that point as `noExitKey`. Do not declare `noExitKey`. `compiler/examples/token_vault` names an owner on its exit. That example is not this omission.
 
 ## The anchor
 
@@ -134,7 +134,7 @@ function unilateral(signature ownerSig) tapscript {
 
 Keep `server` and `emulator` out of constructors and covenant bodies. Use them only as reserved key operands in tapscript signature checks. Declare the corresponding signature witnesses on author-written tapscripts. Keep `serverExitDelay` out of constructors, covenant bodies, and signature checks. Its only use is `older(serverExitDelay)`.
 
-A tokenized vault omits that unilateral tapscript. Omitting it is the same as passing the NUMS point as `noExitKey`. Do not declare `noExitKey`, and do not write the tapscript.
+A tokenized vault omits that unilateral tapscript. Nobody can spend a path locked to the NUMS point, so omitting the tapscript is the same as passing that point as `noExitKey`. Do not declare `noExitKey`, and do not write the tapscript.
 
 Do not use the removed `options { ... }` syntax.
 
