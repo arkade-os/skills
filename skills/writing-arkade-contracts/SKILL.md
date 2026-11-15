@@ -90,6 +90,8 @@ function exercise() {
 
 No `checkSig` on that path. Spending the coin that held the token is the authorization. `rightTxid` and `rightGidx` are constructor fields naming that token. `compiler/examples/fuji_safe/fuji_safe.ark` pays a constructor-pinned burn script and still requires the borrower's signature. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance, and the issuer signs that path. Those are different burns: one spends a right, the other retires the mint.
 
+A tokenized vault omits the exit tapscript. Nobody can spend a path locked to the NUMS point, so omitting the tapscript is the same as passing that point as `noExitKey`. Do not declare `noExitKey`. `compiler/examples/token_vault` names an owner on its exit. That example is not this omission.
+
 ## The anchor
 
 The first issuance leaves one unit of the control asset on the coin. A reissue cannot name the control asset, so that unit is the anchor the next issuance continues. `.withAsset()` moves a group that already exists. It cannot express a fresh issue.
@@ -132,6 +134,8 @@ function unilateral(signature ownerSig) tapscript {
 
 Keep `server` and `emulator` out of constructors and covenant bodies. Use them only as reserved key operands in tapscript signature checks. Declare the corresponding signature witnesses on author-written tapscripts. Keep `serverExitDelay` out of constructors, covenant bodies, and signature checks. Its only use is `older(serverExitDelay)`.
 
+A tokenized vault omits that unilateral tapscript. Nobody can spend a path locked to the NUMS point, so omitting the tapscript is the same as passing that point as `noExitKey`. Do not declare `noExitKey`, and do not write the tapscript.
+
 Do not use the removed `options { ... }` syntax.
 
 ## Design outputs before code
@@ -151,7 +155,7 @@ Reconstruct oracle messages with the exact field order and encoding used by the 
 
 Do not mix time domains:
 
-- `checkTime(timestamp)` reads the emulator clock in Unix seconds and compiles to `OP_CHECKTIME`. Put it in `require`. The operator runs that clock and can accept the spend early. Offchain spends of the leaf are rebuilt with nLockTime 0, so `tx.locktime` does not enforce the same deadline. The path when the operator cannot co-sign is `older(serverExitDelay)` on a tapscript the owner signs. Neither clock is an application countdown.
+- `checkTime(timestamp)` reads the emulator clock in Unix seconds and compiles to `OP_CHECKTIME`. Put it in `require`. The operator runs that clock and can accept the spend early. Offchain spends of the leaf are rebuilt with nLockTime 0, so `tx.locktime` does not enforce the same deadline. For a contract with an owner-signed unilateral tapscript, the path when the operator cannot co-sign is `older(serverExitDelay)` on that tapscript. A tokenized vault omits that tapscript, so it has no such path. Neither clock is an application countdown.
 - Use `tx.locktime` for Bitcoin nLockTime. It is not a clock. CLTV is `after(...)`.
 - Write timelock literals as `older(blocks(n))`, `older(seconds(n))`, `after(blocks(height))`, or `after(seconds(timestamp))`. `seconds(n)` in `older` must be a multiple of 512 and compiles to the BIP68 time-based sequence. A parameter or a unitless literal is pushed raw, so a CSV parameter must already be the BIP68 sequence. Public arkd rejects block-type timelocks, so prefer `older(serverExitDelay)` on exit leaves. The CSV counter starts when the output is mined, not when the virtual coin is created.
 - `tx.offchainTime` is gone.

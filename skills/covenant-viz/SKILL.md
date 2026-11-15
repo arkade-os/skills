@@ -25,7 +25,7 @@ The opening is a few short paragraphs. Name each coin and which transaction spen
 
 State a formula only when the `.ark` file writes it, with the constants from that file. Carrier is 330 sats. A direct send to an address is a second coin. Only a spend that pays the continuation script changes the position the contract tracks. Do not draw the direct send as its own picture. Name the `.ark` paths these transactions spend.
 
-Where more than one owner needs a way out and that set is not named in the contract, `exit` is PULSE. One owner keeps that key on the leaf.
+Where more than one owner needs a way out and that set is not named in the contract, `exit` is PULSE. One owner keeps that key on the leaf. A tokenized vault is the other case: it omits the exit tapscript. Nobody can spend a path locked to the NUMS point, so omitting the tapscript is the same as passing that point as `noExitKey`. Do not draw that key, and do not add an exit heading for it.
 
 ### Contracts
 
@@ -60,7 +60,7 @@ Close Functions with two lines. Enforced: the checks these transactions turned o
 
 ### Transactions
 
-One `###` per action, in the order they happen. The heading is the action. Funding is its own transaction. A function that only runs inside another transaction is an input of that picture, not its own heading. A transaction that must happen before another is its own heading. Exit is its own heading. The spend the script refuses is the last picture. It is not a step in the protocol.
+One `###` per action, in the order they happen. The heading is the action. Funding is its own transaction. A function that only runs inside another transaction is an input of that picture, not its own heading. A transaction that must happen before another is its own heading. Exit is its own heading when the file has that tapscript. A tokenized vault that omits it has no exit picture. The spend the script refuses is the last picture. It is not a step in the protocol.
 
 The prose before the picture names `Contract.function` on each input, says what is not an input, and says what moves. A few short sentences.
 
