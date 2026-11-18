@@ -18,7 +18,7 @@ Pull the SDK. It is not already in this project.
 pnpm add @arkade-os/sdk
 ```
 
-`@arkade-os/sdk` 0.5 is that package. `arkade.programFromArtifact` reads the `arkadec` artifact. It is not a separate named export. Do not clone the SDK, and do not pin an older tarball.
+`@arkade-os/sdk` 0.5.8 or later is that package. `arkade.programFromArtifact` reads the `arkadec` artifact. It is not a separate named export. Do not clone the SDK, and do not pin an older tarball.
 
 ## Ownership
 
@@ -89,7 +89,7 @@ A `Wallet` already owns a manager and both repositories. Pass `contractManager: 
 
 An address decodes with `ArkAddress.decode`. `vtxoTaprootKey` is the 32-byte program for `"name.program"`. `pkScript` is what a spend pays: `OP_1` in front of those 32 bytes, hex `5120…`. The manager subscribes to that script. A key you hold becomes the same pair through `new DefaultVtxo.Script({ pubKey, serverPubKey: client.serverKey, csvTimelock: { type: "seconds", value: client.serverExitDelay } })` on mutinynet: `tweakedPublicKey` is the program, `pkScript` is the payment script. `csvTimelock.type` is `"blocks"` when `client.serverExitDelay` is below 512.
 
-A function argument of type `ScriptPubKey` is two call arguments, program then version, in source order. A `ScriptPubKey` argument is not the `pkScript`.
+A function argument of type `ScriptPubKey` is one call argument, `{ program, version }`, not the two names a constructor takes. It is not the `pkScript` either.
 
 A receive address is where a spend pays. It does not replace a `pubkey` argument.
 
@@ -103,13 +103,13 @@ const [coin] = await contract.getUtxos();
 if (!coin) throw new Error("No spendable contract coin is available");
 
 await contract.functions
-    .spend(/* witnesses, in source order */)
+    .spend({ arkadeScript: [/* inputs, in source order */] })
     .from(coin)
     .to(destination.pkScript, coin.value)
     .send();
 ```
 
-`.from` / `.to` / `.send()` talks to the operator and the emulator and signs with the session identity. A covenant spend is submitted through the emulator. A tapscript spend is submitted through the operator. Call whichever function the artifact declares, with its inputs in source order. A function with no inputs is called with none. Outputs have to satisfy that function's `tx.outputs[i]` checks: value, script, and any asset amounts. `.to` takes the 34-byte `pkScript`.
+`.from` / `.to` / `.send()` talks to the operator and the emulator and signs with the session identity. A covenant spend is submitted through the emulator. A tapscript spend is submitted through the operator. Call whichever function the artifact declares, with one object that groups its inputs by the witness they fill. `arkadeScript` holds the inputs of an Arkade Script function. `tapscript` holds the inputs of a tapscript function other than signatures, which are PSBT signatures that `send()` adds for the session identity. An Arkade Script function and a tapscript function with the same name share one call, which can fill both lists. Each list takes one argument per source parameter, in source order, and a struct goes in whole. Leave out a list with no inputs, and call a function with no inputs with no arguments. A positional call throws. Outputs have to satisfy that function's `tx.outputs[i]` checks: value, script, and any asset amounts. `.to` takes the 34-byte `pkScript`.
 
 `.fund(coins)` adds inputs after the contract coin, signed with the client identity. `.withAsset(spec)` moves an asset group. `.change(script)` is required when the spend is not exact.
 
