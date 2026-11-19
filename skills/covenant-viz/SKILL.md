@@ -25,7 +25,7 @@ The opening is a few short paragraphs. Name each coin and which transaction spen
 
 State a formula only when the `.ark` file writes it, with the constants from that file. Carrier is 330 sats. A direct send to an address is a second coin. Only a spend that pays the continuation script changes the position the contract tracks. Do not draw the direct send as its own picture. Name the `.ark` paths these transactions spend.
 
-Where more than one owner needs a way out and that set is not named in the contract, `exit` is PULSE. One owner keeps that key on the leaf. A tokenized vault is the other case: it omits the exit tapscript, and nothing replaces it. Do not draw an exit path or add an exit heading for it.
+Where more than one owner needs a way out and that set is not named in the contract, `exit` is PULSE. One owner keeps that key on the leaf. A tokenized vault is the other case: it omits the exit tapscript. Do not draw an exit path or add an exit heading for it.
 
 ### Contracts
 

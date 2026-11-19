@@ -90,7 +90,7 @@ function exercise() {
 
 No `checkSig` on that path. Spending the coin that held the token is the authorization. `rightTxid` and `rightGidx` are constructor fields naming that token. `compiler/examples/fuji_safe/fuji_safe.ark` pays a constructor-pinned burn script and still requires the borrower's signature. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance, and the issuer signs that path. Those are different burns: one spends a right, the other retires the mint.
 
-A tokenized vault omits the exit tapscript, and nothing replaces it. The operator refuses an output with no exit path in a batch registration request, so the vault can't renew. `compiler/examples/token_vault` names an owner on its exit. That example is not this omission.
+A tokenized vault omits the exit tapscript, so no holder can spend its output if the operator stops cosigning. The operator still cosigns its spends, and accepts the output in a batch registration request and as a boarding input. `compiler/examples/token_vault` names an owner on its exit. That example is not this omission.
 
 ## The anchor
 
@@ -134,7 +134,7 @@ function unilateral(signature ownerSig) tapscript {
 
 Keep `server` and `emulator` out of constructors and covenant bodies. Use them only as reserved key operands in tapscript signature checks. Declare the corresponding signature witnesses on author-written tapscripts. Keep `serverExitDelay` out of constructors, covenant bodies, and signature checks. Its only use is `older(serverExitDelay)`.
 
-A tokenized vault omits that unilateral tapscript, and nothing replaces it.
+A tokenized vault omits that unilateral tapscript.
 
 Do not use the removed `options { ... }` syntax.
 

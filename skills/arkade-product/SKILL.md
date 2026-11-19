@@ -35,6 +35,6 @@ If the funder must sign every later spend, they have to be online. A standing or
 
 `checkSig` keeps a pubkey in the transaction. A token dispensed onto the receiver's script is the right instead. They exercise it by spending that coin and burning the token. The contract checks the burn. It does not ask for their signature.
 
-A tokenized vault omits the exit tapscript, and nothing replaces it. The operator refuses an output with no exit path in a batch registration request, so the vault can't renew.
+A tokenized vault omits the exit tapscript, so no holder can spend its output if the operator stops cosigning. The operator still cosigns its spends, and accepts the output in a batch registration request and as a boarding input.
 
 Then write the contract, draw it with `covenant-viz`, spend the artifact, show the one next action from that transaction, and prove it on regtest. When the contract changes, that README is regenerated in the same commit as the `.ark` file.
