@@ -29,7 +29,7 @@ Stop with `node regtest/regtest.mjs stop` (volumes stay). Wipe with `node regtes
 
 Defaults that matter: arkd `http://localhost:7070` (admin `7071`), Esplora `http://localhost:3000/api`, emulator `http://localhost:7073`, arkd wallet `http://localhost:6060`. The SDK's regtest Esplora default is that `/api` URL. Bitcoin Core RPC is `localhost:18443`, user `admin1`, password `123`.
 
-arkd's default locktimes in this stack are below 512, so they are blocks. Public arkd rejects that. An exit leaf written as `older(serverExitDelay)` takes this operator's `unilateralExitDelay`. The session fills `<SERVER_EXIT_DELAY>`. Do not pass an exit delay and do not rewrite `csv.type`. A constructor `int` used as `older(name)` is a raw BIP68 sequence: a block count on this stack, or seconds (a multiple of 512) for public arkd.
+arkd's default locktimes in this stack are below 512, so they are blocks. Public arkd rejects that. An exit leaf written as `older(operatorExitDelay)` takes this operator's `unilateralExitDelay`. The session fills `<OPERATOR_EXIT_DELAY>` (mapped to `SERVER_EXIT_DELAY`). Do not pass an exit delay and do not rewrite `csv.type`. A constructor `int` used as `older(name)` is a raw BIP68 sequence: a block count on this stack, or seconds (a multiple of 512) for public arkd.
 
 ## Fund
 
@@ -56,7 +56,7 @@ Run this project's one end-to-end file against the stack you just started. The S
 
 ## Issue an asset
 
-Fund an offchain wallet first, then `wallet.assetManager.issue({ amount })`. Skip this when the contract under test locks only sats. The result's `assetId` is genesis txid plus group index. `AssetId.fromString` gives `txid` and `groupIndex`. Pass those under the constructor's `bytes32` and `int` names. A parameter of type `AssetId` is `name.txid` and `name.gidx`.
+Fund an offchain wallet first, then `wallet.assetManager.issue({ amount })`. Skip this when the contract under test locks only sats. The result's `assetId` is genesis txid plus group index. `AssetId.fromString` gives `txid` and `groupIndex`. For a constructor parameter of type `AssetId`, pass `{ txid, gidx: groupIndex }` (or `"name.txid"` and `"name.gidx"`).
 
 A control asset is an issuance of amount `1n`. A later `issue({ amount, controlAssetId })` mints under that control. Poll `getVtxos()` until the amount is present. The indexer trails a settle and a mine; `waitFor` on the vtxo. When a locktime must still be immature, read Bitcoin Core with `node regtest/regtest.mjs rpc getblockcount`. An Esplora tip lags that height.
 
