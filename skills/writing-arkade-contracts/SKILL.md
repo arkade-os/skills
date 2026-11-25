@@ -62,7 +62,7 @@ function draw() {
 }
 ```
 
-Input 0 is the continuing contract. Input 1 is the order. The order's own script is what allows this continuation: its constructor already named these outputs. Check `tx.numInputs` and the sibling script. A second copy of the same order must not reuse the same outputs. `compiler/examples/fuji_safe/fuji_safe.ark` and `compiler/examples/constant_product/cp_pool.ark` continue themselves with `tx.outputs[0].script == tx.input.current.script`.
+Input 0 is the continuing contract. Input 1 is the order. The order's own script is what allows this continuation: its constructor already named these outputs. Check `tx.numInputs` and the sibling script. A second copy of the same order must not reuse the same outputs. `compiler/examples/constant_product/cp_pool.ark` continues itself with `tx.outputs[0].script == tx.input.current.script`.
 
 ## A staging output postpones the payout
 
@@ -75,7 +75,7 @@ function postpone() {
 }
 ```
 
-`Staging` is an imported child contract, and `new` arguments must be whole constructor parameters, constants, or literals — never witnesses or computed expressions; variable amounts move in the output's `value` or assets. The original constructor never stored the payee. The later call is the one that pays, and it still has to name its outputs from its own rules. An argument that lets the caller pick any script is the same hole as an unpinned output.
+`Staging` is an imported child contract, and `new` arguments must be whole constructor parameters, constants, or literals. Witnesses and computed expressions are refused, so a variable amount moves in the output's `value` or assets. The original constructor never stored the payee. The later call is the one that pays, and it still has to name its outputs from its own rules. An argument that lets the caller pick any script is the same hole as an unpinned output.
 
 ## A token is the right
 
@@ -88,7 +88,7 @@ function exercise() {
 }
 ```
 
-No `checkSig` on that path. Spending the coin that held the token is the authorization. `rightAssetId` is a constructor `AssetId` naming that token; all asset and asset-group lookups take a single `AssetId`. `compiler/examples/fuji_safe/fuji_safe.ark` pays a constructor-pinned burn script and still requires the borrower's signature. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance, and the issuer signs that path. Those are different burns: one spends a right, the other retires the mint.
+No `checkSig` on that path. Spending the coin that held the token is the authorization. `rightAssetId` is a constructor `AssetId` naming that token; all asset and asset-group lookups take a single `AssetId`. `compiler/examples/controlled_mint/controlled_mint.ark` burns the control asset to end issuance, and the issuer signs that path. Those are different burns: one spends a right, the other retires the mint.
 
 ## The anchor
 
@@ -183,7 +183,7 @@ Assume signed 64-bit intermediates and truncating integer division.
 - `==` and `!=` on `int`, `bool`, and `AssetGroup` compare numbers. A witness number that is not minimally encoded fails the spend.
 - Array reads and writes accept `int` index expressions (runtime indexes emit bounds checks). Nested fixed-size arrays such as `int[2][3]` work in constructors, Arkade Script inputs, structs, and locals; tapscript inputs stay scalar.
 - Use `bytes2int`, `bytes2uint`, and `int2bytes` (`bin2num` and `num2bin` are removed). The `asset` scalar type is removed; use `AssetId`. `merkleRoot(...)` emits `OP_MERKLEBRANCHROOT`.
-- Unused parameters and locals are denied by default (`unused-variable`), and unsigned covenant functions warn (`unsigned-spend-path`). Annotate intentional cases with `@allow(lint, "reason")`, and run `arkadec --check` or `--explain <lint>` to inspect lints.
+- An unused local is denied by default (`unused-variable`). An unused function parameter or tapscript input is always an error, and an unused constructor parameter warns (`unused-parameter`). An unsigned covenant function warns (`unsigned-spend-path`). Annotate an intentional lint with `@allow(lint, "reason")`, and run `arkadec --check` or `--explain <lint>` to inspect lints.
 - Use assignments as statements, not expressions.
 - Keep `require` messages short and descriptive.
 
@@ -198,16 +198,12 @@ Check the current grammar rather than preserving workarounds from old examples.
 | Standing order: outputs pinned in the address the funder pays | `compiler/examples/option/option_intent.ark` |
 | Non-interactive completion of a locked offer | `compiler/examples/non_interactive_swap/non_interactive_swap.ark` |
 | Shared pool continuation with standing swap/deposit/exit orders | `compiler/examples/constant_product/cp_pool.ark` |
-| Self-continuation, and a right burned to a named script | `compiler/examples/fuji_safe/fuji_safe.ark` |
 | Burn the control asset to end issuance | `compiler/examples/controlled_mint/controlled_mint.ark` |
-| Recursive state and cross-input validation | `compiler/examples/stability/stability_vault.ark` |
-| Conditional output and dust routing | `compiler/examples/stability/stability_offer.ark` |
-| Asset introspection | `compiler/examples/token_vault/token_vault.ark` |
+| Conditional output and dust routing | `compiler/examples/escrow/escrow.ark` |
+| Asset introspection | `compiler/examples/non_interactive_swap/non_interactive_swap.ark` |
 | Threshold signatures | `compiler/examples/threshold_oracle/threshold_oracle.ark` |
 | Several files, `new` child contracts | `compiler/examples/layerzero/`, `compiler/examples/non_interactive_swap/` |
 | Recursive price beacon | `compiler/tests/features/beacon.rs` |
-
-Most of `compiler/examples/stability/` is commented out and predates the current grammar (its self-instantiation cannot compile in `0.1.0`). Read it for shape, not syntax.
 
 ## Compile an artifact
 
@@ -231,7 +227,7 @@ One contract or library per file. `import "./other.ark";` is relative to the imp
 
 `new Child(args)` checks the imported child's constructor, emits `<CONTRACT:Child(<args>)>`, and pins `Child`'s `codeHash` in the parent artifact's `contracts` map. Arguments must be whole constructor parameters, constants, or literals; witness values and computed expressions (such as struct fields) are rejected. Compile each instantiated child into its own artifact too, and pass all direct and transitive child artifacts in `programFromArtifact(artifact, { contracts: [...] })` (or `compile(input, { contracts: [...] })`). The SDK verifies each child's `codeHash` and derives its 32-byte witness program automatically; callers do not pass the `contract_…` parameter by hand. A destination parameter is a `ScriptPubKey`. The output a transaction pays still carries the full script, `OP_1` plus the 32-byte program.
 
-A contract cannot instantiate itself, directly or through other contracts. To continue the same contract on an output, compare against `tx.input.current.script` or use `this.tunnel(...)` (`compiler/examples/fuji_safe/fuji_safe.ark`, `compiler/examples/constant_product/cp_pool.ark`).
+A contract cannot instantiate itself, directly or through other contracts. To continue the same contract on an output, compare against `tx.input.current.script` or use `this.tunnel(...)` (`compiler/examples/constant_product/cp_pool.ark`).
 
 ## Continue state
 
@@ -239,7 +235,7 @@ Two places hold state, and they advance differently.
 
 Continuing the same contract keeps its constructor fixed by checking `tx.outputs[0].script == tx.input.current.script` or `require(this.tunnel(0))`. `this.tunnel(0)` keeps this input's script program and version, its bitcoin value, and its assets on that output. The explicit form is `this.tunnel(0, {script: true, value: true, assets: true})` (set any flag to `false` as long as at least one is `true`); when `assets: true`, an optional third argument excludes specific `AssetId` values (for example `[feeAsset]`). Moving to a different stage contract uses `new NextStage(...)` for an imported child contract whose constructor arguments are parent parameters, constants, or literals.
 
-A reading or reserve that moves without changing the script lives in output sats (above the 330-sat carrier) or an asset amount. The function continues the same script, then enforces `tx.outputs[0].value` or `tx.outputs[0].assets.lookup(assetId)` for the new amount. A clock is a second asset that the function requires not to move backwards. A passthrough function is the same continuation with each watched amount `output >= input`, so another contract can spend this coin in the same transaction without draining it. `compiler/tests/features/beacon.rs` is that pattern for an oracle, `compiler/examples/constant_product/cp_pool.ark` tracks reserves in sats and assets, and `compiler/examples/token_vault` is the control asset, amount 1, that has to be present on the way in and on the way out.
+A reading or reserve that moves without changing the script lives in output sats (above the 330-sat carrier) or an asset amount. The function continues the same script, then enforces `tx.outputs[0].value` or `tx.outputs[0].assets.lookup(assetId)` for the new amount. A clock is a second asset that the function requires not to move backwards. A passthrough function is the same continuation with each watched amount `output >= input`, so another contract can spend this coin in the same transaction without draining it. `compiler/tests/features/beacon.rs` is that pattern for an oracle. `compiler/examples/constant_product/cp_pool.ark` tracks reserves in sats and assets, and its `keepCtrl` requires the control asset, amount 1, on the way in and on the way out.
 
 Another contract sees that coin only when it is an input of this transaction. Check the sibling script, or the control asset, read the amount, and require the continuation output. A signer copied into the constructor is fixed for that script. Rotating it is a new script. Consumers that must follow the rotation recognize the control asset on the new script, not the previous constructor.
 
