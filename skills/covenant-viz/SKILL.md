@@ -4,9 +4,9 @@ description: >
   Write the Arkade contract README as contracts, functions, and one mermaid
   transaction per action: inputs, the action, then outputs, with the
   same-index check on a dotted edge. Say who signs versus who can build the
-  server plus the function-tweaked emulator. A require is not authorization.
-  A direct send is a second coin beside the continuation. Use after
-  writing-arkade-contracts, in the same commit as the .ark file. An
+  synthesized `<OPERATOR_KEY:fn>` covenant spend. A require is not
+  authorization. A direct send is a second coin beside the continuation. Use
+  after writing-arkade-contracts, in the same commit as the .ark file. An
   interactive page is only when a public input changes the payment. Do not
   use for arkadec, the SDK spend, or the product screen.
 ---
@@ -49,10 +49,10 @@ One `###` per contract. Each function is a signature line and a short list. Do n
 
 The first sentence says which transaction this runs in and who signs.
 
-- A covenant function with no matching tapscript is the server plus the function-tweaked emulator. The operator cosigns. Anyone who can build that transaction can pass the `require`. When the `require` checks a signature, that signature is part of the transaction. `complete` checks `checkSigFromStack` on the oracle. The oracle attests the message. Say when a person does not sign.
+- A covenant function with no replacing tapscript emits `<OPERATOR_KEY:fn>` (`tweak(operator, fn)`), which the SDK expands to the server plus the function-tweaked emulator until the stack supports a single operator key. The operator cosigns. Anyone who can build that transaction can pass the `require`. When the `require` checks a signature, that signature is part of the transaction. `complete` checks `checkSigFromStack` on the oracle. The oracle attests the message. Say when a person does not sign.
 - A tapscript names the keys on the leaf. The receiver spending the script they named when they took the coins is the signature, as `OptionIntent` does.
-- One owner: `exit` is that key after `older(serverExitDelay)`, on the published output.
-- PULSE: the contract does not name the set. The leaf is `older(serverExitDelay)` and `checkSig(pulseSig, pulseKey)`. `pulseSig` is already on the lattice root. `pulseKey` is deleted after that tree is signed. Publishing the path from the batch output to this coin, then that owner's branch, is that owner's exit. Write PULSE only when the contract is that shape.
+- One owner: `exit` is that key after `older(operatorExitDelay)`, on the published output.
+- PULSE: the contract does not name the set. The leaf is `older(operatorExitDelay)` and `checkSig(pulseSig, pulseKey)`. `pulseSig` is already on the lattice root. `pulseKey` is deleted after that tree is signed. Publishing the path from the batch output to this coin, then that owner's branch, is that owner's exit. Write PULSE only when the contract is that shape.
 
 The list is the checks, in source order. Show the comparison the script writes. An output the script does not pin is unconstrained. Every output the function checks is in the Transactions picture. The picture does not drop one.
 
@@ -119,7 +119,7 @@ A formula the file writes goes in the opening. A price-function section is a fur
 
 Learn the page from [solver-vault](https://github.com/ArkLabsHQ/solver-vault#transactions). Learn what one contract draws from escrow and one standing offer, then write the contract in this commit.
 
-Escrow is `compiler/examples/escrow/escrow.ark`. Party A sends the coin. `complete` pays `partyBScript` at least `amount`, and a surplus above 330 to `partyAScript`. `cancel` returns the coin after `checkTime(timeoutAt)`. The oracle signs the committed message, and `complete` checks `checkSigFromStack` on that signature. `complete` and `cancel` are the server plus the function-tweaked emulator. `unilateral` is party A and party B after `older(serverExitDelay)`. The transactions are the funding, `complete`, `cancel`, the exit, and one rejected spend.
+Escrow is `compiler/examples/escrow/escrow.ark`. Party A sends the coin. `complete` pays `partyBScript` at least `amount`, and a surplus above 330 to `partyAScript`. `cancel` returns the coin after `checkTime(timeoutAt)`. The oracle signs the committed message, and `complete` checks `checkSigFromStack` on that signature. `complete` and `cancel` use the synthesized `<OPERATOR_KEY:fn>` leaf (expanded by the SDK to the server plus the function-tweaked emulator). `unilateral` is party A and party B after `older(operatorExitDelay)`. The transactions are the funding, `complete`, `cancel`, the exit, and one rejected spend.
 
 One standing offer is `compiler/examples/option/option_intent.ark`, or the pot. OptionIntent names `collateral`, `premium`, and `DUST` (330). The funder does not sign `finalize`. That spend takes this coin plus one input whose script is not this intent, and pays the scripts the constructor already named. The pot is the standing offer with no other amounts in the file: carrier 330, pot above it. Draw the one this contract is.
 
@@ -133,6 +133,6 @@ The interactive page is that options case. The control sets the public number th
 
 ## Check
 
-The README, the `.ark` file, and the artifact are in one commit. The order is opening, Contracts, Functions, Transactions. Every transaction picture has Inputs, the circle, and Outputs, the four classes, and the grey links. A dotted edge is a check the script writes. Every output the function checks is in the picture. A non-exact spend whose function does not pin `tx.numOutputs` shows the change `.change(script)` adds as unconstrained. Every satoshi amount is 330 or a literal in the `.ark` file. The opening says a direct send is a second coin, and no picture treats that send as the continuation. The rejected picture stays rejected, and it is last. Functions state that a `require` is not authorization, and a covenant with no tapscript is the server plus the function-tweaked emulator. There is no price-function section unless the script reads a public number, and no interactive page unless that number changes the payment.
+The README, the `.ark` file, and the artifact are in one commit. The order is opening, Contracts, Functions, Transactions. Every transaction picture has Inputs, the circle, and Outputs, the four classes, and the grey links. A dotted edge is a check the script writes. Every output the function checks is in the picture. A non-exact spend whose function does not pin `tx.numOutputs` shows the change `.change(script)` adds as unconstrained. Every satoshi amount is 330 or a literal in the `.ark` file. The opening says a direct send is a second coin, and no picture treats that send as the continuation. The rejected picture stays rejected, and it is last. Functions state that a `require` is not authorization, and a covenant with no replacing tapscript emits `<OPERATOR_KEY:fn>` (expanded by the SDK to the server plus the function-tweaked emulator). There is no price-function section unless the script reads a public number, and no interactive page unless that number changes the payment.
 
 Then spend the artifact with `arkade-contract`. The screen follows the transaction this README draws for the current coin and shows one next action. It does not invent a second protocol.

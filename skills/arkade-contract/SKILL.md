@@ -10,7 +10,7 @@ description: >
 
 # Spend any Arkade contract
 
-This skill is used from a fresh project. The artifact is produced by the `writing-arkade-contracts` skill (`arkadec` from a clone of [arkade-os/compiler](https://github.com/arkade-os/compiler)). `covenant-viz` has already drawn the transactions. This skill spends that committed JSON. The same steps cover any contract. Function names on `contract.functions` are the function names in the `.ark` file. Spend the outputs that function checks. If the transaction omitted one, regenerate the README. Do not add an output the function does not check. When the spend is not exact and the function does not pin `tx.numOutputs`, the change `.change(script)` adds is drawn unconstrained.
+This skill is used from a fresh project. The artifact is produced by the `writing-arkade-contracts` skill (`arkadec` `0.1.0` from [arkade-os/compiler](https://github.com/arkade-os/compiler), or `@arkade-os/sdk/compiler` with `@arkade-os/compiler` `0.1.0`). `covenant-viz` has already drawn the transactions. This skill spends that committed JSON. The same steps cover any contract. Function names on `contract.functions` are the function names in the `.ark` file. Spend the outputs that function checks. If the transaction omitted one, regenerate the README. Do not add an output the function does not check. When the spend is not exact and the function does not pin `tx.numOutputs`, the change `.change(script)` adds is drawn unconstrained.
 
 Pull the SDK. It is not already in this project.
 
@@ -30,18 +30,30 @@ pnpm add @arkade-os/sdk
 
 ## Load the artifact
 
+Artifacts from compiler `0.1.0` and later need an SDK release that includes [ts-sdk#1266](https://github.com/arkade-os/ts-sdk/pull/1266) (operator key and exit delay). Nested arrays, `AssetGroupInput` and `AssetGroupOutput` also need [ts-sdk#1271](https://github.com/arkade-os/ts-sdk/pull/1271), and `{ contracts }` needs [ts-sdk#1235](https://github.com/arkade-os/ts-sdk/pull/1235). No release has any of them as of 2026-11-25. SDK 0.5.14 throws one of these before the contract has an address:
+
+- `covenant leaf must sign with the emulator or a tweaked constructor key`
+- `'$OPERATOR_KEY' is referenced but not declared in program params`, or the same for `'$OPERATOR_EXIT_DELAY'`
+- `debug file needs a functions object`, when `{ contracts }` is passed
+
+If the newest release still throws one, stop and report it. Do not edit the artifact, and do not bind `contract_…` keys by hand.
+
 ```ts
 import { arkade } from "@arkade-os/sdk";
 import artifact from "./contract.artifact.json" with { type: "json" };
 
 const program = arkade.programFromArtifact(artifact);
+// When the artifact instantiates child contracts with `new`:
+// const program = arkade.programFromArtifact(artifact, { contracts: [childArtifact] });
 ```
 
-`arkade.programFromArtifact` keeps the compiler's opcodes. An artifact `functions` array is not a `Program`; `parseArtifact` rejects it and points here. `formatVersion`, when present, is 1. Ignore `updatedAt` when diffing artifacts. Each `<CONTRACT:...>` placeholder becomes a `bytes32` parameter. Pass that child output's 32-byte witness program under the name on `program.params`.
+`arkade.programFromArtifact` reads compiler `0.1.0` artifacts (and keeps reading `0.1.0-rc.1` artifacts) while preserving the compiler's opcodes. An artifact `functions` array is not a `Program`; `parseArtifact` rejects it and points here. `formatVersion`, when present, is 1. Ignore `updatedAt` when diffing artifacts. Pass a build's debug file as `{ debug }` (or bare `debug`) to attach `sourceMap` entries. To compile `.ark` sources directly in JS/TS, import `compile(input, { contracts, debug })` from `@arkade-os/sdk/compiler` with the optional peer `@arkade-os/compiler` (`^0.1.0`); it returns `{ program, artifact, debug?, diagnostics }`. Recompiling an older `0.1.0-rc.1` contract with `0.1.0` can change its Arkade Script and therefore its address; stored contracts keep the `Program` they were created with.
 
-`checkTime` is `OP_CHECKTIME`. The SDK already supports it.
+Compiler `0.1.0` emits `<OPERATOR_KEY>`, `<OPERATOR_KEY:fn>`, and `<OPERATOR_EXIT_DELAY>`. `programFromArtifact` maps `<OPERATOR_KEY>` to `server` and `<OPERATOR_EXIT_DELAY>` to `SERVER_EXIT_DELAY`. Until arkd and the emulator support a single operator key, `programFromArtifact` internally expands `<OPERATOR_KEY:fn>` into `<SERVER_KEY>` plus `<EMULATOR_KEY:fn>` (or `<EMULATOR_KEY:fn>` alone in a CSV leaf, without duplicating `<SERVER_KEY>` if `<OPERATOR_KEY>` or `<SERVER_KEY>` is already present). `OP_MERKLEBRANCHROOT` is the canonical opcode name (`OP_MERKLEBRANCHVERIFY` remains an encode alias). `checkTime` is `OP_CHECKTIME`.
 
-`older(serverExitDelay)` is the exit leaf. The compiler emits `<SERVER_EXIT_DELAY>`. That name is not a constructor input. Do not declare `exit` or `exitDelay`, and do not pass one. `arkade.programFromArtifact` declares `SERVER_EXIT_DELAY` and binds the CSV as a sequence. `client.contract()` fills it from `getInfo().unilateralExitDelay`, as the BIP68 sequence, the same way an omitted `server` is filled from `client.serverKey`. A different value is refused. A seconds delay that is not a multiple of 512 is refused. Do not change `csv.type`. If the installed SDK leaves `$SERVER_EXIT_DELAY` undeclared, that package is behind this compiler. Do not put the delay back in the constructor.
+When a contract instantiates other contracts with `new`, pass the artifact of every child it instantiates, directly or transitively, as one flat array in any order, in `options.contracts` on `programFromArtifact` or `compile`. The SDK recomputes each child's `codeHash` (SHA-256 of compact JSON excluding `source`, `compiler`, `updatedAt`, `fingerprint`, and `codeHash`, in `arkadec`'s own key order) and checks it against the parent's `contracts` pin. Keep the JSON `arkadec` wrote verbatim without reordering keys (for example, do not round-trip child artifacts through Postgres `jsonb`), or `codeHash` verification fails. Pre-`0.1.0` parent artifacts without `contracts` pins are refused. `client.contract()` compiles each child with the contract's `serverKey`, `emulatorKey`, and `client.serverExitDelay` from only the parent's mapped values (a child's `user` never falls back to the client's identity key), recurses for grandchildren, and binds each `contract_…` `bytes32` parameter to that child's 32-byte witness program automatically. Do not pass `contract_…` by hand; a mismatched value throws.
+
+`older(operatorExitDelay)` is the exit leaf. Compiler `0.1.0` emits `<OPERATOR_EXIT_DELAY>` (older artifacts emit `<SERVER_EXIT_DELAY>`). That name is not a constructor input. Do not declare `exit` or `exitDelay`, and do not pass one. `arkade.programFromArtifact` maps `<OPERATOR_EXIT_DELAY>` to `SERVER_EXIT_DELAY` and binds the CSV as a sequence. `client.contract()` fills it from `getInfo().unilateralExitDelay`, as the BIP68 sequence, the same way an omitted `server` is filled from `client.serverKey`. A different value is refused. A seconds delay that is not a multiple of 512 is refused. Do not change `csv.type`. If the installed SDK rejects `<OPERATOR_EXIT_DELAY>` or leaves `$SERVER_EXIT_DELAY` undeclared, that package is behind compiler `0.1.0`. Do not put the delay back in the constructor.
 
 A constructor `int` in `older(name)` is a different leaf, for a delay that varies per instance. The artifact pushes that integer raw. Pass the BIP68 sequence. A literal sequence already in the artifact is decoded with `sequenceToTimelock`. Leave every other opcode alone.
 
@@ -80,12 +92,16 @@ A `Wallet` already owns a manager and both repositories. Pass `contractManager: 
 | --- | --- |
 | `pubkey` | `await key.xOnlyPublicKey()`, 32 bytes |
 | `bytes32` hash | `sha256(preimage)`. The signer signs the preimage |
-| `ScriptPubKey` | `"name.program"` is the witness program, `"name.version"` is `1n` for Taproot |
+| `ScriptPubKey` | `{ program, version }` (or `"name.program"` and `"name.version"`), with `version: 1n` for Taproot |
 | `int` amount | satoshis, as `bigint` |
 | `int` time | the clock that function reads |
 | `bool` | `0` or `1` |
-| asset id | `AssetId.fromString` gives `txid` and `groupIndex`. Pass those under the constructor's `bytes32` and `int` names. A parameter of type `AssetId` is `"name.txid"` and `"name.gidx"` |
-| `<CONTRACT:...>` | the `bytes32` name on `program.params`, set to that child output's 32-byte program |
+| `AssetId` | `{ txid, gidx: groupIndex }` (or `"name.txid"` and `"name.gidx"`), from `AssetId.fromString` |
+| `AssetGroupInput` / `AssetGroupOutput` | `{ type, index, amount }` (`int`s, or `"name.type"`, `"name.index"`, `"name.amount"`) |
+| `T[n]` / `T[a][b]` | nested arrays (e.g. `[[1n, 2n], [3n, 4n]]`) or flattened dotted names outermost index first (`"grid.0.1"`) |
+| `<CONTRACT:...>` | derived automatically from `options.contracts`; do not pass by hand |
+
+Structs (including structs containing nested arrays and arrays of structs) and nested fixed-size arrays flatten outermost index first (`grid.0.0` … `grid.1.2`) and can be passed whole by source name in `client.contract(program, args)` or by flattened dotted names. User structs cannot shadow built-in struct names (`AssetId`, `Outpoint`, `ECPoint`, `ScriptPubKey`, `AssetEntry`, `AssetLookup`, `AssetGroupInput`, `AssetGroupOutput`, `G2Point`).
 
 An address decodes with `ArkAddress.decode`. `vtxoTaprootKey` is the 32-byte program for `"name.program"`. `pkScript` is what a spend pays: `OP_1` in front of those 32 bytes, hex `5120…`. The manager subscribes to that script. A key you hold becomes the same pair through `new DefaultVtxo.Script({ pubKey, serverPubKey: client.serverKey, csvTimelock: { type: "seconds", value: client.serverExitDelay } })` on mutinynet: `tweakedPublicKey` is the program, `pkScript` is the payment script. `csvTimelock.type` is `"blocks"` when `client.serverExitDelay` is below 512.
 
@@ -93,7 +109,7 @@ A function argument of type `ScriptPubKey` is two call arguments, program then v
 
 A receive address is where a spend pays. It does not replace a `pubkey` argument.
 
-If the program declares `server` or `user` and the caller omits them, `contract()` fills the client server key and the identity key. Explicit args win. `SERVER_EXIT_DELAY` is reserved the same way `server` is. `contract()` fills it from the operator. Do not pass an exit delay.
+If the program declares `server` or `user` and the caller omits them, `contract()` fills the client server key and the identity key. Explicit args win. `SERVER_EXIT_DELAY` is reserved the same way `server` is. `contract()` fills it from the operator. Do not pass an exit delay. Instantiated `<CONTRACT:…>` keys are also filled automatically from `options.contracts`; a child contract's `user` never falls back to the client's identity key.
 
 ## Spend
 
@@ -136,10 +152,10 @@ The page subscribes. `ContractManager` is the writer. The screen reads the repos
 
 `register({ label })` is the same write `on` performs. It stores the program, constructor args, and the server and emulator keys, and adds `pkScript` to the manager's one subscription. Do not also call `indexer.subscribeForScripts`. The same script again is a no-op and does not refetch history. If the first fetch fails, backfill with `client.contractManager.refreshVtxos({ scripts: [row.script], after: 0 })`, where `row` is what `register()` returned.
 
-The indexer coin at txid:vout is the position. `isSpent` false means open. `spentBy` is the spend. Constructor arguments are not on the transaction. `arkade.ArkadeContract.fromContract(client, row)` rebuilds from that stored row, so the address stays the one that was funded after a signer rotation or a change of the exit delay. A second page with no shared storage gets the outpoint, the artifact, and those recorded arguments, then `register()` and `refreshVtxos`. A fresh `client.contract(program, args)` binds this session's server key and exit delay, which is a different address when either changed. Copying the wallet repository is not the restore. `wallet.restore()` still cannot derive the script from a seed.
+The indexer coin at txid:vout is the position. `isSpent` false means open. `spentBy` is the spend. Constructor arguments are not on the transaction. `arkade.ArkadeContract.fromContract(client, row)` rebuilds from that stored row, so the address stays the one that was funded after a signer rotation or a change of the exit delay; persisted rows store only the resolved `bytes32` child keys, so `fromContract` restores without child artifacts. A second page with no shared storage gets the outpoint, the artifact (plus any child artifacts it instantiates, passed via `programFromArtifact(artifact, { contracts })`), and those recorded arguments, then `register()` and `refreshVtxos`. A fresh `client.contract(program, args)` binds this session's server key and exit delay (including for linked child contracts), which produces a different address when either changed. After a signer rotation or an exit-delay change, restore from the stored row with `fromContract` instead. Copying the wallet repository is not the restore. `wallet.restore()` still cannot derive the script from a seed.
 
 Leave `metadata.genericallySpendable` unset unless this contract's coins are safe in a generic wallet send. The arkade handler treats anything but explicit `true` as not generically spendable, and `createContract` is first-writer-wins for that script.
 
 Do not poll Esplora for a virtual transaction id. `GET /api/tx/<virtualTxid>` is 404. Ask Mempool only about a transaction that has been unrolled. On mutinynet that Esplora API is `https://mempool.mutinynet.arkade.sh/api`. The Arkade explorer is `https://explorer.mutinynet.arkade.sh/`.
 
-`checkTime` reads the emulator clock, in unix seconds. `older(serverExitDelay)` has not started before unroll. The delay is `client.serverExitDelay`, the operator's `unilateralExitDelay`. The session fills `<SERVER_EXIT_DELAY>`. Do not pass it.
+`checkTime` reads the emulator clock, in unix seconds. `older(operatorExitDelay)` has not started before unroll. The delay is `client.serverExitDelay`, the operator's `unilateralExitDelay`. The session fills `<OPERATOR_EXIT_DELAY>` (bound as `SERVER_EXIT_DELAY`). Do not pass it.
