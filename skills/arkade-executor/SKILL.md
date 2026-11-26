@@ -136,7 +136,7 @@ A coin whose terms travel in an extension packet needs the template to say what 
 ```bash
 cd <this skill>/scripts/check
 go run . template.json - contract.artifact.json          # ids, or the refusal
-go run . -server <serverPubkey> -emulator <emulatorPubkey> \
+go run . -operator <operatorPubkey> -emulator <emulatorPubkey> \
   template.json delegation.json contract.artifact.json   # and the script each input resolves to
 ```
 
@@ -163,7 +163,7 @@ post template renew.json               # .template.id goes into the app
 - An id is the hash of the document's canonical form. Registering twice returns the same id, so a deploy script can always post.
 - The template names its artifacts by id, and the app names its templates by id. Commit both ids. A test that recomputes them catches a contract edit that silently changed an address.
 - The public port (`7080`) reads artifacts and templates. It also registers them only when the executor runs with `EXECUTOR_PUBLIC_REGISTRY=true`; otherwise its operator posts them on the admin port (`7081`), which is private.
-- At startup, ask the executor what it has: `GET /v1/info` returns `serverPubkey` and `emulatorPubkey`, and `GET /v1/template/<id>` answers 200 or not. Addresses depend on both keys. If they are not the keys the SDK session uses, or the template is missing, the page keeps doing the step itself.
+- At startup, ask the executor what it has: `GET /v1/info` returns `operatorPubkey` and `emulatorPubkey`, and `GET /v1/template/<id>` answers 200 or not. Addresses depend on both keys. If they are not the keys the SDK session uses, or the template is missing, the page keeps doing the step itself.
 
 ## Delegate
 

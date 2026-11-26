@@ -1,9 +1,9 @@
 // Runs a template through executord's own engine, with no executor and no network:
 //
-//	go run . [-server <hex>] [-emulator <hex>] <template.json> <delegation.json|-> <artifact.json>...
+//	go run . [-operator <hex>] [-emulator <hex>] <template.json> <delegation.json|-> <artifact.json>...
 //
 // It prints the ids the executor will return, and, given a delegation, the script each input
-// resolves to. Pass the serverPubkey and emulatorPubkey of the executor's /v1/info to get the
+// resolves to. Pass the operatorPubkey and emulatorPubkey of the executor's /v1/info to get the
 // scripts of that network; the ids do not depend on them.
 package main
 
@@ -33,13 +33,13 @@ type input struct {
 }
 
 func main() {
-	server := flag.String("server", "", "serverPubkey of /v1/info, 33 bytes hex")
+	operator := flag.String("operator", "", "operatorPubkey of /v1/info, 33 bytes hex")
 	emulator := flag.String("emulator", "", "emulatorPubkey of /v1/info, 33 bytes hex")
 	flag.Parse()
 	if flag.NArg() < 3 {
-		fail("usage: check [-server hex] [-emulator hex] <template> <delegation|-> <artifact>...")
+		fail("usage: check [-operator hex] [-emulator hex] <template> <delegation|-> <artifact>...")
 	}
-	r, err := check(flag.Arg(0), flag.Arg(1), flag.Args()[2:], *server, *emulator)
+	r, err := check(flag.Arg(0), flag.Arg(1), flag.Args()[2:], *operator, *emulator)
 	out, _ := json.MarshalIndent(r, "", "  ")
 	fmt.Println(string(out))
 	if err != nil {
