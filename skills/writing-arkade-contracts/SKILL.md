@@ -174,6 +174,7 @@ Assume signed 64-bit intermediates and truncating integer division.
 
 - Bound user-controlled rates, fees, timestamps, and amounts before arithmetic.
 - Interleave multiplication and division when a full product could overflow.
+- Round a fee cap up. The operator rounds its fee up to a whole sat, and integer division rounds a cap down. A cap at the operator's own rate is then one sat short whenever the fee has a fraction, so the renewal fails the contract's check at every attempt and the coin expires. Write `(value * maxFeeBps + 9999) / 10000`: with `maxFeeBps = 100` on 19,602 sats, it allows the 197 sats that a 1% operator fee costs, where `value * maxFeeBps / 10000` allows only 196.
 - Check whether truncation can produce a zero update while advancing state; require a meaningful delta when repeated zero-value updates would enable griefing.
 - Document scale in names or nearby code and keep it consistent across state transitions.
 
