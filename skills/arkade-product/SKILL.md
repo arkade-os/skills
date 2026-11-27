@@ -17,7 +17,7 @@ A coin on a script is one output. A direct send creates a second coin beside the
 
 ## A require is not authorization
 
-An operator-enforced function with no replacing tapscript emits `<OPERATOR_KEY:fn>` (`tweak(operator, fn)`), which the SDK expands to the server plus the function-tweaked emulator until the stack supports a single operator key. Anyone who can build that transaction can pass the `require`. A `require` checks the transaction. It does not identify who may move the coins.
+A function with Arkade Script and no replacing tapscript emits `<OPERATOR_KEY:fn>` (`tweak(operator, fn)`), which the SDK expands to the server plus the function-tweaked emulator until the stack supports a single operator key. Anyone who can build that transaction can pass the `require`. A `require` checks the transaction. It does not identify who may move the coins.
 
 ## The receiver signs by spending
 

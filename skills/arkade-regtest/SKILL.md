@@ -72,7 +72,7 @@ Virtual txids are not on Esplora. Assert through the indexer. Mine, then ask Esp
 
 A refused emulator signature is a key mismatch when `hex.encode(client.emulatorKey)` differs from the `signerPubkey` the emulator serves at `/v1/info`. `hex` is from `@scure/base`. `client.emulatorKey` is 33 bytes, and `signerPubkey` is the hex string. Compare those before changing the contract.
 
-If the stack is down, stop. A failing spend will not explain a down arkd. `curl -sf http://localhost:7070/v1/info` and, when the contract has an operator-enforced function, the emulator on port 7073.
+If the stack is down, stop. A failing spend will not explain a down arkd. `curl -sf http://localhost:7070/v1/info` and, when the contract has a function with Arkade Script, the emulator on port 7073.
 
 ## Shape of the file
 

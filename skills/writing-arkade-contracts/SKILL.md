@@ -3,7 +3,7 @@ name: writing-arkade-contracts
 description: >
   Author and edit an Arkade smart contract in `.ark`, and compile it with
   arkadec to an artifact. Use for constructor state, spend functions,
-  tapscript leaves, witnesses, output layouts, oracle checks, recursive
+  Tapscript, witnesses, output layouts, oracle checks, recursive
   beacons, timelocks, and fixed-point arithmetic. Do not use for compiler
   implementation, spending the artifact, the covenant pictures, the product
   UI, or Arkade regtest.
@@ -25,7 +25,7 @@ Run `arkade-product` first. This file records those choices. It does not invent 
 
 ## The leaf rule
 
-An operator-enforced function with no replacing tapscript synthesizes `<OPERATOR_KEY:fn> OP_CHECKSIG` (`tweak(operator, fn)`), which the SDK expands to the server key plus the function-tweaked emulator key until arkd and the emulator move to a single operator key. Anyone who can build that transaction can pass the `require`. A `require` checks the transaction. It does not identify who may move the coins.
+A function with Arkade Script and no replacing tapscript synthesizes `<OPERATOR_KEY:fn> OP_CHECKSIG` (`tweak(operator, fn)`). The SDK expands that to the server key plus the function-tweaked emulator key until arkd and the emulator move to a single operator key. Anyone who can build that transaction can pass the `require`. A `require` checks the transaction. It does not identify who may move the coins.
 
 A leaf that is the receiver's signature names their key on the script they took the coins on, as `compiler/examples/option/option_intent.ark` does. Spending those coins is the signature. A standing address accepts sats and names the outputs in its constructor. The submitter does not choose them.
 
@@ -106,24 +106,24 @@ Compile early:
 cargo run --manifest-path compiler/Cargo.toml -- path/to/contract.ark -o contract.artifact.json
 ```
 
-## Model state and spend paths
+## Model state and functions
 
 - Put committed state in constructor parameters and per-spend data in function parameters. Declare those parameters in source order. An Arkade Script witness is that list reversed; a tapscript witness follows the tapscript parameter list.
-- Constructor parameters are placeholders until instantiation, then constants in the script. Spend paths assume the agreed values. There is no constructor hook, so a domain check inside a spend does not run at compile time and does not see a different value than the one already committed.
+- Constructor parameters are placeholders until instantiation, then constants in the script. Functions assume the agreed values. There is no constructor hook, so a domain check inside a spend does not run at compile time and does not see a different value than the one already committed.
 - Continue the same contract with `tx.outputs[i].script == tx.input.current.script` or `this.tunnel(...)`; a contract cannot instantiate itself.
 - Construct a different imported contract with `new ChildContract(...)` (using only whole constructor parameters, constants, or literals) and assert its output script and minimum value. `tx.outputs[i].script` is a `ScriptPubKey` with `program` and `version`, not the `5120…` script a transaction pays. `new` returns that struct at witness version 1, so the comparison checks the program and the version. Bind the script and read `.program` only when the version must stay out of the check. `tx.input.current.script` is the same struct (`this.activeBytecode` is removed). A destination parameter is a `ScriptPubKey`, not a `bytes32`.
 - Use `function name(...) { ... }` for introspection and state-transition rules. It compiles to Arkade Script, which the operator runs before it cosigns.
 - Use `function name(...) tapscript { ... }` only for L1 authorization, hashes, and timelocks supported by `compiler/src/compiler/tapscript.rs`.
-- A function is **operator-enforced** when it has Arkade Script. It is a `function` with no modifier, together with every tapscript that tweaks a key to it. A tapscript bound to no other function is a **Bitcoin-enforced** function. The compiler's messages say "Arkade Script function" and "tapscript function" for the two source forms.
-- One operator-enforced function can use both halves: a hashlock and an N-of-N multisig in its tapscript, and introspection in its Arkade Script. Bitcoin checks the first half, and only the operator runs the second.
+- Every function has **Bitcoin-enforceable** conditions in its tapscript, and it may also have **operator-enforced** conditions in Arkade Script. The two words describe conditions, never the function. A `function` with no modifier declares Arkade Script, and every tapscript that tweaks a key to it shares that Arkade Script. A tapscript bound to no other function has only Bitcoin-enforceable conditions. The compiler's messages say "Arkade Script function" and "tapscript function" for the two source forms.
+- One function can have conditions of both kinds: a hashlock and an N-of-N multisig in its tapscript, and introspection in its Arkade Script. Bitcoin can enforce the first, and only the operator runs the second.
 
-An operator-enforced function with no replacing tapscript gets a synthesized collaborative leaf: `<OPERATOR_KEY:fn> OP_CHECKSIG` (`checkSig(operatorSig, tweak(operator, fn))`), which the SDK currently expands to the server key plus the function-tweaked emulator key until arkd and the emulator move to a single operator key. Add an explicit tapscript only when that authorization is insufficient.
+A function with Arkade Script and no replacing tapscript gets a synthesized leaf: `<OPERATOR_KEY:fn> OP_CHECKSIG` (`checkSig(operatorSig, tweak(operator, fn))`). The SDK currently expands it to the server key plus the function-tweaked emulator key until arkd and the emulator move to a single operator key. Add an explicit tapscript only when that authorization is insufficient.
 
 Author-written tapscript rules:
 
 - Any non-CSV leaf must include `operator` or `tweak(operator, fn)`.
-- A tapscript with the same name as an operator-enforced function replaces its synthesized leaf, must have no CSV delay, and must tweak at least one key to that function (`tweak(operator, fn)` or `tweak(constructorPubkey, fn)`). Bare `operator` is never tweaked implicitly.
-- A CSV tapscript bound to an operator-enforced function must take a different name and tweak a key to that function; it sits beside the function's synthesized leaf in the spend group.
+- A tapscript with the same name as a function with Arkade Script replaces its synthesized leaf. It must have no CSV delay, and it must tweak at least one key to that function (`tweak(operator, fn)` or `tweak(constructorPubkey, fn)`). Bare `operator` is never tweaked implicitly.
+- A CSV tapscript bound to a function with Arkade Script must take a different name and tweak a key to that function; it sits beside the function's synthesized leaf in the spend group.
 - Every tweaked key in one tapscript must name the same function.
 - Tapscript `checkMultisig([keys], [sigs])` takes no threshold (always N-of-N).
 
@@ -159,8 +159,8 @@ Reconstruct oracle messages with the exact field order and encoding used by the 
 
 Do not mix time domains:
 
-- `checkTime(timestamp)` reads the emulator clock in Unix seconds and compiles to `OP_CHECKTIME`. Put it in `require`. The operator runs that clock and can accept the spend early. Offchain spends of the leaf are rebuilt with nLockTime 0, so `tx.locktime` does not enforce the same deadline. The path when the operator cannot co-sign is `older(operatorExitDelay)` on a tapscript the owner signs. Neither clock is an application countdown.
-- `tx.locktime` reads Bitcoin nLockTime and is not a clock; reading it in an operator-enforced function is denied by default (`offchain-locktime` lint). CLTV is `after(...)` in tapscripts.
+- `checkTime(timestamp)` reads the emulator clock in Unix seconds and compiles to `OP_CHECKTIME`. Put it in `require`. The operator runs that clock and can accept the spend early. Offchain spends of the leaf are rebuilt with nLockTime 0, so `tx.locktime` does not enforce the same deadline. If the operator is unavailable, the owner spends through the exit path: `older(operatorExitDelay)` on a tapscript the owner signs. Neither clock is an application countdown.
+- `tx.locktime` reads Bitcoin nLockTime and is not a clock; reading it in Arkade Script is denied by default (`offchain-locktime` lint). CLTV is `after(...)` in tapscripts.
 - Write timelock literals as `older(blocks(n))`, `older(seconds(n))`, `after(blocks(height))`, or `after(seconds(timestamp))`. `seconds(n)` in `older` must be a multiple of 512 and compiles to the BIP68 time-based sequence. A parameter or a unitless literal is pushed raw, so a CSV parameter must already be the BIP68 sequence. Public arkd rejects block-type timelocks, so prefer `older(operatorExitDelay)` on exit leaves. The CSV counter starts when the output is mined, not when the virtual coin is created.
 - `tx.offchainTime` is gone.
 
@@ -168,7 +168,7 @@ Do not mix time domains:
 require(checkTime(oracleTime), "future-dated oracle");
 ```
 
-For multi-input covenant checks, compare `this.activeInputIndex` with the witness-selected sibling index and verify the sibling input script before using its values. Checks written against `tx.outputs` are transaction-wide: a second input that carries the same script can satisfy them without adding a second set of outputs. Name the input set the path allows. A path that spends only this coin requires `tx.numInputs == 1`. A path that needs other coins must identify those inputs by index and by script, not only by value.
+For multi-input covenant checks, compare `this.activeInputIndex` with the witness-selected sibling index and verify the sibling input script before using its values. Checks written against `tx.outputs` are transaction-wide: a second input that carries the same script can satisfy them without adding a second set of outputs. Name the input set the function allows. A function that spends only this coin requires `tx.numInputs == 1`. A function that needs other coins must identify those inputs by index and by script, not only by value.
 
 ## Keep arithmetic bounded
 
@@ -185,7 +185,7 @@ Assume signed 64-bit intermediates and truncating integer division.
 - `==` and `!=` on `int`, `bool`, and `AssetGroup` compare numbers. A witness number that is not minimally encoded fails the spend.
 - Array reads and writes accept `int` index expressions (runtime indexes emit bounds checks). Nested fixed-size arrays such as `int[2][3]` work in constructors, structs, locals, and the parameters of functions without the `tapscript` modifier; `tapscript` parameters stay scalar.
 - Use `bytes2int`, `bytes2uint`, and `int2bytes` (`bin2num` and `num2bin` are removed). The `asset` scalar type is removed; use `AssetId`. `merkleRoot(...)` emits `OP_MERKLEBRANCHROOT`.
-- An unused local is denied by default (`unused-variable`). An unused function parameter is always an error, in a `tapscript` function too, and an unused constructor parameter warns (`unused-parameter`). An unsigned operator-enforced function warns (`unsigned-spend-path`). Annotate an intentional lint with `@allow(lint, "reason")`, and run `arkadec --check` or `--explain <lint>` to inspect lints.
+- An unused local is denied by default (`unused-variable`). An unused function parameter is always an error, in a `tapscript` function too, and an unused constructor parameter warns (`unused-parameter`). An unsigned function with Arkade Script warns (`unsigned-spend-path`). Annotate an intentional lint with `@allow(lint, "reason")`, and run `arkadec --check` or `--explain <lint>` to inspect lints.
 - Use assignments as statements, not expressions.
 - Keep `require` messages short and descriptive.
 
