@@ -15,7 +15,7 @@ description: >
 
 Run this after `writing-arkade-contracts` and before `arkade-contract`. The `.ark` file is already written. Read that file and write the README. Regenerate it when the file changes, in the same commit.
 
-The shape is the [solver-vault](https://github.com/ArkLabsHQ/solver-vault#transactions) page: an opening, Contracts, Functions, then Transactions. Each transaction is one picture.
+The README has four parts: an opening, Contracts, Functions, then Transactions. Each transaction is one picture.
 
 ## The README
 
@@ -117,7 +117,7 @@ A formula the file writes goes in the opening. A price-function section is a fur
 
 ## Examples
 
-Learn the page from [solver-vault](https://github.com/ArkLabsHQ/solver-vault#transactions). Learn what one contract draws from escrow and one standing offer, then write the contract in this commit.
+Learn what one contract draws from escrow and one standing offer, then write the contract in this commit.
 
 Escrow is `compiler/examples/escrow/escrow.ark`. Party A sends the coin. `complete` pays `partyBScript` at least `amount`, and a surplus above 330 to `partyAScript`. `cancel` returns the coin after `checkTime(timeoutAt)`. The oracle signs the committed message, and `complete` checks `checkSigFromStack` on that signature. `complete` and `cancel` use the synthesized `<OPERATOR_KEY:fn>` leaf (expanded by the SDK to the server plus the function-tweaked emulator). `unilateral` is party A and party B after `older(operatorExitDelay)`. The transactions are the funding, `complete`, `cancel`, the exit, and one rejected spend.
 
