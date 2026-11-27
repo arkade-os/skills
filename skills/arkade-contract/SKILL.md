@@ -82,7 +82,7 @@ Leave `identity` off when this session only watches or spends leaves that do not
 
 A `Wallet` already owns a manager and both repositories. Pass `contractManager: await wallet.getContractManager()` and omit `storage`. Passing both throws. Do not construct a second manager beside the wallet and write the same scripts through both.
 
-`client.serverKey` is the operator key from `getInfo`. It is part of the taproot tree. It is not a key named in the contract. The emulator is required only when a path actually spends a covenant. `client.emulatorKey` is the 33-byte key from the SDK's network pin, not from the emulator's `/v1/info`. Encode it with `hex` from `@scure/base` and compare that string to the emulator's `signerPubkey` when a claim is refused.
+`client.serverKey` is the operator key from `getInfo`. It is part of the taproot tree. It is not a key named in the contract. The emulator is required only when a spend goes through a function with Arkade Script. `client.emulatorKey` is the 33-byte key from the SDK's network pin, not from the emulator's `/v1/info`. Encode it with `hex` from `@scure/base` and compare that string to the emulator's `signerPubkey` when a claim is refused.
 
 ## Constructor arguments
 
@@ -125,7 +125,7 @@ await contract.functions
     .send();
 ```
 
-`.from` / `.to` / `.send()` talks to the operator and the emulator and signs with the session identity. A covenant spend is submitted through the emulator. A tapscript spend is submitted through the operator. Call whichever function the artifact declares, with one object that groups its inputs by the witness they fill. `arkadeScript` holds the inputs of an Arkade Script function. `tapscript` holds the inputs of a tapscript function other than signatures, which are PSBT signatures that `send()` adds for the session identity. An Arkade Script function and a tapscript function with the same name share one call, which can fill both lists. Each list takes one argument per source parameter, in source order, and a struct goes in whole. Leave out a list with no inputs, and call a function with no inputs with no arguments. A positional call throws. Outputs have to satisfy that function's `tx.outputs[i]` checks: value, script, and any asset amounts. `.to` takes the 34-byte `pkScript`.
+`.from` / `.to` / `.send()` talks to the operator and the emulator and signs with the session identity. A spend through a function with Arkade Script is submitted through the emulator, and a spend through a function with no Arkade Script through the operator. Call whichever function the artifact declares, with one object that groups its arguments by the witness they fill. `arkadeScript` holds the arguments of its Arkade Script. `tapscript` holds the arguments of its tapscript other than signatures, which are PSBT signatures that `send()` adds for the session identity. A function with both halves is one call, which can fill both lists. Each list takes one argument per source parameter, in source order, and a struct goes in whole. Leave out a list with no arguments, and call a function with no parameters with no arguments. A positional call throws. Outputs have to satisfy that function's `tx.outputs[i]` checks: value, script, and any asset amounts. `.to` takes the 34-byte `pkScript`.
 
 `.fund(coins)` adds inputs after the contract coin, signed with the client identity. `.withAsset(spec)` moves an asset group. `.change(script)` is required when the spend is not exact.
 

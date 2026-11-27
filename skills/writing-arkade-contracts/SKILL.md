@@ -3,7 +3,7 @@ name: writing-arkade-contracts
 description: >
   Author and edit an Arkade smart contract in `.ark`, and compile it with
   arkadec to an artifact. Use for constructor state, spend functions,
-  tapscript leaves, witnesses, output layouts, oracle checks, recursive
+  Tapscript, witnesses, output layouts, oracle checks, recursive
   beacons, timelocks, and fixed-point arithmetic. Do not use for compiler
   implementation, spending the artifact, the covenant pictures, the product
   UI, or Arkade regtest.
@@ -25,7 +25,7 @@ Run `arkade-product` first. This file records those choices. It does not invent 
 
 ## The leaf rule
 
-A covenant function with no replacing tapscript synthesizes `<OPERATOR_KEY:fn> OP_CHECKSIG` (`tweak(operator, fn)`), which the SDK expands to the server key plus the function-tweaked emulator key until arkd and the emulator move to a single operator key. Anyone who can build that transaction can pass the `require`. A `require` checks the transaction. It does not identify who may move the coins.
+A function with Arkade Script and no replacing tapscript synthesizes `<OPERATOR_KEY:fn> OP_CHECKSIG` (`tweak(operator, fn)`). The SDK expands that to the server key plus the function-tweaked emulator key until arkd and the emulator move to a single operator key. Anyone who can build that transaction can pass the `require`. A `require` checks the transaction. It does not identify who may move the coins.
 
 A leaf that is the receiver's signature names their key on the script they took the coins on, as `compiler/examples/option/option_intent.ark` does. Spending those coins is the signature. A standing address accepts sats and names the outputs in its constructor. The submitter does not choose them.
 
@@ -106,26 +106,28 @@ Compile early:
 cargo run --manifest-path compiler/Cargo.toml -- path/to/contract.ark -o contract.artifact.json
 ```
 
-## Model state and spend paths
+## Model state and functions
 
-- Put committed state in constructor parameters and per-spend data in function parameters. Declare those parameters in source order. A covenant witness is that list reversed; a tapscript witness follows the tapscript parameter list.
-- Constructor parameters are placeholders until instantiation, then constants in the script. Spend paths assume the agreed values. There is no constructor hook, so a domain check inside a spend does not run at compile time and does not see a different value than the one already committed.
+- Put committed state in constructor parameters and per-spend data in function parameters. Declare those parameters in source order. An Arkade Script witness is that list reversed; a tapscript witness follows the tapscript parameter list.
+- Constructor parameters are placeholders until instantiation, then constants in the script. Functions assume the agreed values. There is no constructor hook, so a domain check inside a spend does not run at compile time and does not see a different value than the one already committed.
 - Continue the same contract with `tx.outputs[i].script == tx.input.current.script` or `this.tunnel(...)`; a contract cannot instantiate itself.
 - Construct a different imported contract with `new ChildContract(...)` (using only whole constructor parameters, constants, or literals) and assert its output script and minimum value. `tx.outputs[i].script` is a `ScriptPubKey` with `program` and `version`, not the `5120…` script a transaction pays. `new` returns that struct at witness version 1, so the comparison checks the program and the version. Bind the script and read `.program` only when the version must stay out of the check. `tx.input.current.script` is the same struct (`this.activeBytecode` is removed). A destination parameter is a `ScriptPubKey`, not a `bytes32`.
-- Use covenant `function name(...) { ... }` bodies for introspection and state-transition rules.
+- Use `function name(...) { ... }` for introspection and state-transition rules. It compiles to Arkade Script, which the operator runs before it cosigns.
 - Use `function name(...) tapscript { ... }` only for L1 authorization, hashes, and timelocks supported by `compiler/src/compiler/tapscript.rs`.
+- Every function has **Bitcoin-enforceable** conditions in its tapscript, and it may also have **operator-enforced** conditions in Arkade Script. The two words describe conditions, never the function. A `function` with no modifier declares Arkade Script, and every tapscript that tweaks a key to it shares that Arkade Script. A tapscript bound to no other function has only Bitcoin-enforceable conditions. The compiler's messages say "Arkade Script function" and "tapscript function" for the two source forms.
+- One function can have conditions of both kinds: a hashlock and an N-of-N multisig in its tapscript, and introspection in its Arkade Script. Bitcoin can enforce the first, and only the operator runs the second.
 
-A covenant function with no replacing tapscript gets a synthesized collaborative leaf: `<OPERATOR_KEY:fn> OP_CHECKSIG` (`checkSig(operatorSig, tweak(operator, fn))`), which the SDK currently expands to the server key plus the function-tweaked emulator key until arkd and the emulator move to a single operator key. Add an explicit tapscript only when that authorization is insufficient.
+A function with Arkade Script and no replacing tapscript gets a synthesized leaf: `<OPERATOR_KEY:fn> OP_CHECKSIG` (`checkSig(operatorSig, tweak(operator, fn))`). The SDK currently expands it to the server key plus the function-tweaked emulator key until arkd and the emulator move to a single operator key. Add an explicit tapscript only when that authorization is insufficient.
 
 Author-written tapscript rules:
 
 - Any non-CSV leaf must include `operator` or `tweak(operator, fn)`.
-- A tapscript with the same name as an Arkade Script function replaces its synthesized leaf, must have no CSV delay, and must tweak at least one key to that function (`tweak(operator, fn)` or `tweak(constructorPubkey, fn)`). Bare `operator` is never tweaked implicitly.
-- A CSV tapscript bound to an Arkade Script function must take a different name and tweak a key to that function; it sits beside the function's synthesized leaf in the spend group.
+- A tapscript with the same name as a function with Arkade Script replaces its synthesized leaf. It must have no CSV delay, and it must tweak at least one key to that function (`tweak(operator, fn)` or `tweak(constructorPubkey, fn)`). Bare `operator` is never tweaked implicitly.
+- A CSV tapscript bound to a function with Arkade Script must take a different name and tweak a key to that function; it sits beside the function's synthesized leaf in the spend group.
 - Every tweaked key in one tapscript must name the same function.
 - Tapscript `checkMultisig([keys], [sigs])` takes no threshold (always N-of-N).
 
-Add unilateral exit as a separate CSV tapscript when required:
+Add the exit path as a separate CSV tapscript when required:
 
 ```ark
 function unilateral(signature ownerSig) tapscript {
@@ -136,7 +138,7 @@ function unilateral(signature ownerSig) tapscript {
 
 `operatorExitDelay` is a reserved placeholder, the same kind as `operator`. `older(operatorExitDelay)` lowers to `<OPERATOR_EXIT_DELAY>`. It is not a constructor parameter. The caller does not pass an exit delay. The SDK maps `<OPERATOR_EXIT_DELAY>` to its reserved `SERVER_EXIT_DELAY` binding and fills it from the operator's `unilateralExitDelay`, the same way it maps `<OPERATOR_KEY>` to `server` and fills it from the operator key. For a different fixed delay, write `older(seconds(n))` with a literal or `int` constant. Take a constructor `int` only when the delay varies per instance; it is pushed raw, so the caller passes the BIP68 sequence.
 
-Keep `operator` and `operatorExitDelay` out of constructor parameters, constants, covenant bodies, and tapscript inputs. Use `operator` only as a key operand in tapscript signature checks (bare or in `tweak(operator, fn)`), and declare its signature witness (`signature operatorSig`) on author-written tapscripts. Use `operatorExitDelay` only in `older(operatorExitDelay)`. The old `server`, `emulator`, and `serverExitDelay` names are removed.
+Keep `operator` and `operatorExitDelay` out of constructor parameters, constants, bodies without the `tapscript` modifier, and `tapscript` parameters. Use `operator` only as a key operand in tapscript signature checks (bare or in `tweak(operator, fn)`), and declare its signature witness (`signature operatorSig`) on author-written tapscripts. Use `operatorExitDelay` only in `older(operatorExitDelay)`. The old `server`, `emulator`, and `serverExitDelay` names are removed.
 
 Do not use the removed `options { ... }` syntax.
 
@@ -157,8 +159,8 @@ Reconstruct oracle messages with the exact field order and encoding used by the 
 
 Do not mix time domains:
 
-- `checkTime(timestamp)` reads the emulator clock in Unix seconds and compiles to `OP_CHECKTIME`. Put it in `require`. The operator runs that clock and can accept the spend early. Offchain spends of the leaf are rebuilt with nLockTime 0, so `tx.locktime` does not enforce the same deadline. The path when the operator cannot co-sign is `older(operatorExitDelay)` on a tapscript the owner signs. Neither clock is an application countdown.
-- `tx.locktime` reads Bitcoin nLockTime and is not a clock; reading it in an Arkade Script function is denied by default (`offchain-locktime` lint). CLTV is `after(...)` in tapscripts.
+- `checkTime(timestamp)` reads the emulator clock in Unix seconds and compiles to `OP_CHECKTIME`. Put it in `require`. The operator runs that clock and can accept the spend early. Offchain spends of the leaf are rebuilt with nLockTime 0, so `tx.locktime` does not enforce the same deadline. If the operator is unavailable, the owner spends through the exit path: `older(operatorExitDelay)` on a tapscript the owner signs. Neither clock is an application countdown.
+- `tx.locktime` reads Bitcoin nLockTime and is not a clock; reading it in Arkade Script is denied by default (`offchain-locktime` lint). CLTV is `after(...)` in tapscripts.
 - Write timelock literals as `older(blocks(n))`, `older(seconds(n))`, `after(blocks(height))`, or `after(seconds(timestamp))`. `seconds(n)` in `older` must be a multiple of 512 and compiles to the BIP68 time-based sequence. A parameter or a unitless literal is pushed raw, so a CSV parameter must already be the BIP68 sequence. Public arkd rejects block-type timelocks, so prefer `older(operatorExitDelay)` on exit leaves. The CSV counter starts when the output is mined, not when the virtual coin is created.
 - `tx.offchainTime` is gone.
 
@@ -166,7 +168,7 @@ Do not mix time domains:
 require(checkTime(oracleTime), "future-dated oracle");
 ```
 
-For multi-input covenant checks, compare `this.activeInputIndex` with the witness-selected sibling index and verify the sibling input script before using its values. Checks written against `tx.outputs` are transaction-wide: a second input that carries the same script can satisfy them without adding a second set of outputs. Name the input set the path allows. A path that spends only this coin requires `tx.numInputs == 1`. A path that needs other coins must identify those inputs by index and by script, not only by value.
+For multi-input covenant checks, compare `this.activeInputIndex` with the witness-selected sibling index and verify the sibling input script before using its values. Checks written against `tx.outputs` are transaction-wide: a second input that carries the same script can satisfy them without adding a second set of outputs. Name the input set the function allows. A function that spends only this coin requires `tx.numInputs == 1`. A function that needs other coins must identify those inputs by index and by script, not only by value.
 
 ## Keep arithmetic bounded
 
@@ -179,11 +181,11 @@ Assume signed 64-bit intermediates and truncating integer division.
 
 ## Respect grammar limits
 
-- `&&` and `||` are available in covenant bodies and short-circuit; ternary expressions are not.
+- `&&` and `||` are available in bodies without the `tapscript` modifier and short-circuit; ternary expressions are not.
 - `==` and `!=` on `int`, `bool`, and `AssetGroup` compare numbers. A witness number that is not minimally encoded fails the spend.
-- Array reads and writes accept `int` index expressions (runtime indexes emit bounds checks). Nested fixed-size arrays such as `int[2][3]` work in constructors, Arkade Script inputs, structs, and locals; tapscript inputs stay scalar.
+- Array reads and writes accept `int` index expressions (runtime indexes emit bounds checks). Nested fixed-size arrays such as `int[2][3]` work in constructors, structs, locals, and the parameters of functions without the `tapscript` modifier; `tapscript` parameters stay scalar.
 - Use `bytes2int`, `bytes2uint`, and `int2bytes` (`bin2num` and `num2bin` are removed). The `asset` scalar type is removed; use `AssetId`. `merkleRoot(...)` emits `OP_MERKLEBRANCHROOT`.
-- An unused local is denied by default (`unused-variable`). An unused function parameter or tapscript input is always an error, and an unused constructor parameter warns (`unused-parameter`). An unsigned covenant function warns (`unsigned-spend-path`). Annotate an intentional lint with `@allow(lint, "reason")`, and run `arkadec --check` or `--explain <lint>` to inspect lints.
+- An unused local is denied by default (`unused-variable`). An unused function parameter is always an error, in a `tapscript` function too, and an unused constructor parameter warns (`unused-parameter`). An unsigned function with Arkade Script warns (`unsigned-spend-path`). Annotate an intentional lint with `@allow(lint, "reason")`, and run `arkadec --check` or `--explain <lint>` to inspect lints.
 - Use assignments as statements, not expressions.
 - Keep `require` messages short and descriptive.
 
@@ -193,7 +195,7 @@ Check the current grammar rather than preserving workarounds from old examples.
 
 | Need | Start with |
 |---|---|
-| Basic covenant plus unilateral exit | `compiler/examples/htlc/htlc.ark` |
+| Basic covenant plus exit path | `compiler/examples/htlc/htlc.ark` |
 | Oracle attestation, introspection-pinned payouts, branching output layouts | `compiler/examples/escrow/escrow.ark` |
 | Standing order: outputs pinned in the address the funder pays | `compiler/examples/option/option_intent.ark` |
 | Non-interactive completion of a locked offer | `compiler/examples/non_interactive_swap/non_interactive_swap.ark` |
@@ -217,7 +219,7 @@ cargo run --manifest-path compiler/Cargo.toml -- path/to/contract.ark -o contrac
 
 `compile_file` loads the entry and its relative imports. `compile_sources(entry, files)` (and `@arkade-os/compiler` `0.1.0` / `@arkade-os/sdk/compiler`) compiles an in-memory project. Pass `--debug` to write a sibling `.debug.json` file (replacing the artifact extension, linked by `artifactFingerprint`) and `--check` to typecheck and lint without writing an artifact. The JSON shape is `formatVersion` (1), `contractName`, `structs` (absent when none), `constructorInputs`, `functions` (spend groups of `{ name, arkade?, leaves }`), `contracts` (when the contract instantiates others with `new`, mapping each child name to its `codeHash`), `codeHash`, `source`, `compiler`, `updatedAt`, and `fingerprint`. Warnings are printed and are not in the artifact. Ignore `updatedAt` when diffing. `codeHash` is the sha256 of compact JSON for `formatVersion` through `contracts` in `arkadec`'s key order, and `fingerprint` covers the artifact before `fingerprint` and `updatedAt`. `source.files` is every imported file, verbatim; recompile that bundle with the same compiler version.
 
-`constructorInputs` and `arkade.inputs` are the source ABI. Clients expand arrays (including nested fixed-size arrays such as `int[2][3]`, outermost index first) and structs into scalar leaves. A `ScriptPubKey` expands to `program` (`bytes`) then `version` (`int`). An `AssetId` expands to `txid` (`bytes32`) then `gidx` (`int`). `AssetGroupInput` and `AssetGroupOutput` each expand to `type`, `index`, `amount` (`int`). Covenant inputs are serialized in reverse `arkade.inputs` order. `<CONTRACT:Contract(<args>)>` placeholders are resolved by the SDK from the child artifacts passed in `options.contracts` and verified against `contracts` (`codeHash`).
+`constructorInputs` and `arkade.inputs` are the source ABI. Clients expand arrays (including nested fixed-size arrays such as `int[2][3]`, outermost index first) and structs into scalar leaves. A `ScriptPubKey` expands to `program` (`bytes`) then `version` (`int`). An `AssetId` expands to `txid` (`bytes32`) then `gidx` (`int`). `AssetGroupInput` and `AssetGroupOutput` each expand to `type`, `index`, `amount` (`int`). The Arkade Script's arguments are serialized in reverse `arkade.inputs` order. `<CONTRACT:Contract(<args>)>` placeholders are resolved by the SDK from the child artifacts passed in `options.contracts` and verified against `contracts` (`codeHash`).
 
 `compiler/playground/contracts.js` and `compiler/playground/pkg/` are generated. A playground folder is an entry in the `projects` object in `compiler/playground/main.js`. Regenerate the contract bundle with `compiler/playground/generate_contracts.sh`. `compiler/examples/**/*.json` is compiler output and is ignored.
 
