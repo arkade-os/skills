@@ -27,3 +27,5 @@ npx skills add arkade-os/skills
    ```
 
    Inside that one end-to-end file, a direct send of sats must not count as the contract's position. Helpers go at the end of the file. Leave `regtest/` untracked.
+
+7. **Nobody online.** Follow `arkade-executor` when a step must happen after the user closed the page: a renewal before the coin expires, a refund after a deadline, a deposit that becomes the coin it was for. An [executor](https://github.com/arkade-os/executor) sends the transaction a template describes, and the contract still decides whether it is allowed. A step that needs the owner's signature or a fresh value stays with the page.

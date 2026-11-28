@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: refund-after-deadline
+expected_outcome: |
+  template.json is an executord template/v1 document that spends the escrow's refund leaf to the payer's program, and delegation.json is the request body for that deposit with every variable in hex. Both are accepted by executord's template engine.
+context:
+  scaffold_script: place-files.sh

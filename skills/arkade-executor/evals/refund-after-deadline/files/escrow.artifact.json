@@ -1,0 +1,130 @@
+{
+  "contractName": "Escrow",
+  "constructorInputs": [
+    {
+      "name": "payerPk",
+      "type": "pubkey"
+    },
+    {
+      "name": "payerProgram",
+      "type": "bytes32"
+    },
+    {
+      "name": "merchantPk",
+      "type": "pubkey"
+    },
+    {
+      "name": "deadline",
+      "type": "int"
+    },
+    {
+      "name": "exitDelay",
+      "type": "int"
+    }
+  ],
+  "structs": [],
+  "functions": [
+    {
+      "name": "release",
+      "leaves": [
+        {
+          "name": "release",
+          "asm": [
+            "<merchantPk>",
+            "OP_CHECKSIGVERIFY",
+            "<SERVER_KEY>",
+            "OP_CHECKSIG"
+          ],
+          "witness": [
+            {
+              "name": "merchantSig",
+              "type": "signature",
+              "encoding": "schnorr-64"
+            },
+            {
+              "name": "serverSig",
+              "type": "signature",
+              "encoding": "schnorr-64",
+              "injected": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "arkade": {
+        "inputs": [],
+        "asm": [
+          "OP_INSPECTNUMINPUTS",
+          "1",
+          "OP_NUMEQUALVERIFY",
+          "<deadline>",
+          "OP_CHECKTIME",
+          "OP_VERIFY",
+          "0",
+          "OP_INSPECTOUTPUTSCRIPTPUBKEY",
+          "1",
+          "OP_NUMEQUALVERIFY",
+          "<payerProgram>",
+          "OP_EQUALVERIFY",
+          "0",
+          "OP_INSPECTOUTPUTVALUE",
+          "OP_PUSHCURRENTINPUTINDEX",
+          "OP_INSPECTINPUTVALUE",
+          "OP_GREATERTHANOREQUAL"
+        ]
+      },
+      "leaves": [
+        {
+          "name": "refund",
+          "asm": [
+            "<deadline>",
+            "OP_CHECKLOCKTIMEVERIFY",
+            "OP_DROP",
+            "<SERVER_KEY>",
+            "OP_CHECKSIGVERIFY",
+            "<EMULATOR_KEY:refund>",
+            "OP_CHECKSIG"
+          ],
+          "witness": [
+            {
+              "name": "serverSig",
+              "type": "signature",
+              "encoding": "schnorr-64",
+              "injected": true
+            },
+            {
+              "name": "emulatorSig",
+              "type": "signature",
+              "encoding": "schnorr-64",
+              "injected": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "exit",
+      "leaves": [
+        {
+          "name": "exit",
+          "asm": [
+            "<exitDelay>",
+            "OP_CHECKSEQUENCEVERIFY",
+            "OP_DROP",
+            "<payerPk>",
+            "OP_CHECKSIG"
+          ],
+          "witness": [
+            {
+              "name": "payerSig",
+              "type": "signature",
+              "encoding": "schnorr-64"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
